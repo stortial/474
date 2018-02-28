@@ -97,9 +97,18 @@ def preprocess():
 
     # Split train_data and train_label into train_data, validation_data and train_label, validation_label
     # replace the next two lines
-    validation_data = np.array([])
-    validation_label = np.array([])
+    r = np.random.permutation(range(0, train_data.shape[0]))
+    size = len(r)
 
+    #percent of train data to be split
+    tr = .5
+    va = 1-tr
+
+    train_data = np.array([0:r[(size*tr)],:])
+    train_label = np.array([0:r[(size*tr)],:])
+
+    validation_data = np.array([r[(size*va):],:])
+    validation_label = np.array([r[(size*va):],:])
 
     print("preprocess done!")
 
