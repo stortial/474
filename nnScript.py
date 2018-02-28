@@ -55,7 +55,7 @@ def preprocess():
      - normalize the data to [0, 1]
      - divide the original data set to training, validation and testing set"""
 
-    mat = loadmat('mnist_all.mat') #loads the MAT object as a Dictionary
+    mat = loadmat('mnist_sample.mat') #loads the MAT object as a Dictionary
     train_data = np.concatenate((mat['train0'], mat['train1'],
                                  mat['train2'], mat['train3'],
                                  mat['train4'], mat['train5'],
@@ -87,13 +87,32 @@ def preprocess():
                                 mat['test6'], mat['test7'],
                                 mat['test8'], mat['test9']), 0)
 
-    # remove features that have same value for all points in the training data
+
+   # remove features that have same value for all points in the training data
+   # Haven't really tested this so it might be wrong
+    same = [True] * 784
+    prev = [0] * 784
+    x = 0
+    for x in range(len(train_data-1)):
+        # print(x,len(train_data))
+        i = int(x%783)
+        p = int(x/783)
+        if same[i]:
+            print(train_data[i].item(i), p)
+            if prev[i] != train_data[p].item(i) :
+                same[i] = False
+            else:
+                prev[i] = train_data[p].item(i)
+
+
     # convert data to double
     train_data = np.double(train_data)
     test_data = np.double(test_data)
     # normalize data to [0,1]
     train_data = train_data / 255
     test_data = test_data / 255
+
+
 
     # Split train_data and train_label into train_data, validation_data and train_label, validation_label
     # replace the next two lines
