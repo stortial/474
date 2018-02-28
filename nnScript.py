@@ -89,7 +89,11 @@ def preprocess():
 
     # remove features that have same value for all points in the training data
     # convert data to double
+    train_data = np.double(train_data)
+    test_data = np.double(test_data)
     # normalize data to [0,1]
+    train_data = train_data / 255
+    test_data = test_data / 255
 
     # Split train_data and train_label into train_data, validation_data and train_label, validation_label
     # replace the next two lines
