@@ -98,7 +98,7 @@ def preprocess():
         i = int(x%783)
         p = int(x/783)
         if same[i]:
-            print(train_data[i].item(i), p)
+            #print(train_data[i].item(i), p)
             if prev[i] != train_data[p].item(i) :
                 same[i] = False
             else:
@@ -123,11 +123,17 @@ def preprocess():
     tr = .5
     va = 1-tr
 
-    train_data = np.array([0:r[(size*tr)],:])
-    train_label = np.array([0:r[(size*tr)],:])
+    training = int(size*tr)
+    val = int(size*va)
 
-    validation_data = np.array([r[(size*va):],:])
-    validation_label = np.array([r[(size*va):],:])
+    validation_data = np.array([])
+    validation_label = np.array([])
+
+    validation_data = train_data[r[val:],:]
+    validation_label = train_label[r[val:],:]    
+
+    train_data = train_data[r[0:training],:]
+    train_label = train_label[r[0:training],:]
 
     print("preprocess done!")
 
