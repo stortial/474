@@ -90,7 +90,7 @@ def preprocess():
 
    # remove features that have same value for all points in the training data
     same = [True] * 784
-    print(train_data[0])
+    #print(train_data[0])
     for j in range(len(train_data)-1):
         for x in range(0, len(train_data[0])-1):
             if train_data[j].item(x) != train_data[j+1].item(x):
@@ -103,7 +103,7 @@ def preprocess():
         n += 1
 
 
-    print(train_data[0])
+    #print(train_data[0])
 
 
     # convert data to double
@@ -184,11 +184,23 @@ def nnObjFunction(params, *args):
     obj_val = 0
 
     # Your code here
-    #
-    #
-    #
-    #
-    #
+
+    #add a column of ones to training data for the bias nodes
+    ones = [1]*2998
+
+    #take data and apply w1 to it
+    test = np.c_[training_data, ones]
+    test = test.dot(np.transpose(w1))
+
+    #apply sigmoid
+    test = sigmoid(test)
+
+    #take data and apply w2 to it
+    test = np.c_[test,ones]
+    test = test.dot(np.transpose(w2))
+    #apply sigmoid
+    test = sigmoid(test)
+
 
 
 
@@ -219,6 +231,25 @@ def nnPredict(w1, w2, data):
 
     labels = np.array([])
     # Your code here
+
+    #add a column of ones to training data for the bias nodes
+    ones = [1]*2998
+
+    #take data and apply w1 to it
+    test = np.c_[data, ones]
+    test = test.dot(np.transpose(w1))
+
+    #apply sigmoid
+    test = sigmoid(test)
+
+    #take data and apply w2 to it
+    test = np.c_[test,ones]
+    test = test.dot(np.transpose(w2))
+    #apply sigmoid
+    test = sigmoid(test)
+
+    #put lables on each function
+
 
     return labels
 
