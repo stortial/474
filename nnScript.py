@@ -202,8 +202,6 @@ def nnObjFunction(params, *args):
     test = sigmoid(test)
 
 
-
-
     # Make sure you reshape the gradient matrices to a 1D array. for instance if your gradient matrices are grad_w1 and grad_w2
     # you would use code similar to the one below to create a flat array
     # obj_grad = np.concatenate((grad_w1.flatten(), grad_w2.flatten()),0)
@@ -249,7 +247,7 @@ def nnPredict(w1, w2, data):
     test = sigmoid(test)
 
     #put lables on each function
-
+    np.amax(test, axis = 0)
 
     return labels
 
