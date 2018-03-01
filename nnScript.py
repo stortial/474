@@ -91,19 +91,10 @@ def preprocess():
    # remove features that have same value for all points in the training data
    # Haven't really tested this so it might be wrong
     same = [True] * 784
-    prev = [0] * 784
-    x = 0
-    for x in range(len(train_data-1)):
-        # print(x,len(train_data))
-        i = int(x%783)
-        p = int(x/783)
-        if same[i]:
-            #print(train_data[i].item(i), p)
-            if prev[i] != train_data[p].item(i) :
-                same[i] = False
-            else:
-                prev[i] = train_data[p].item(i)
-
+    for j in range(0,2):
+        for x in range(0, len(train_data[0])):
+            if train_data[j].item(x) != train_data[j+1].item(x):
+                same[x] = False
 
     # convert data to double
     train_data = np.double(train_data)
@@ -111,8 +102,6 @@ def preprocess():
     # normalize data to [0,1]
     train_data = train_data / 255
     test_data = test_data / 255
-
-
 
     # Split train_data and train_label into train_data, validation_data and train_label, validation_label
     # replace the next two lines
@@ -130,7 +119,7 @@ def preprocess():
     validation_label = np.array([])
 
     validation_data = train_data[r[val:],:]
-    validation_label = train_label[r[val:],:]    
+    validation_label = train_label[r[val:],:]
 
     train_data = train_data[r[0:training],:]
     train_label = train_label[r[0:training],:]
