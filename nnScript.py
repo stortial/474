@@ -89,12 +89,22 @@ def preprocess():
 
 
    # remove features that have same value for all points in the training data
-   # Haven't really tested this so it might be wrong
     same = [True] * 784
-    for j in range(0,2):
-        for x in range(0, len(train_data[0])):
+    print(train_data[0])
+    for j in range(len(train_data)-1):
+        for x in range(0, len(train_data[0])-1):
             if train_data[j].item(x) != train_data[j+1].item(x):
                 same[x] = False
+    # remove common features
+    n = 0
+    while n < (len(train_data[0])-1):
+        if same[n]:
+            train_data = np.delete(train_data,n,1)
+        n += 1
+
+
+    print(train_data[0])
+
 
     # convert data to double
     train_data = np.double(train_data)
