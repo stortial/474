@@ -197,14 +197,48 @@ def nnObjFunction(params, *args):
 
     #take data and apply w2 to it
     test = np.c_[test,ones]
-    test = test.dot(np.transpose(w2))
-    #apply sigmoid
-    test = sigmoid(test)
+    afterTest = test.dot(np.transpose(w2))
 
+    #apply sigmoid
+    afterTest = sigmoid(afterTest)
+
+
+    #np.set_printoptions(threshold=np.nan)
+
+    truth_label = np.zeros((afterTest.shape[0], afterTest.shape[1]))
+
+    for x in range(0,train_label.shape[0]):
+        truth_label[x, int(train_label[x])-1] = 1
+
+    #this gives us delta l, but we need delta j
+    almostEndw2 = (truth_label-afterTest)*afterTest*(1-afterTest)
+
+    #do dot product on almostEndw2 and the output of the perceptron
+    endw2 = np.transpose(almostEndw2).dot(test)
+
+    #next is to multiply result by oj(1-oj)
+    # just have to figure out oj
+    #endw2 = total*oj*(1-oj)
+
+    print(almostEndw2.shape)
+    print(test.shape)
+    print("ADAM")
+
+    #print (endw2)
+
+
+
+
+    #update rule for w1
+    #endw1 = (stuff-test)*test*(1-test)
+
+    #update rule for w2
 
     # Make sure you reshape the gradient matrices to a 1D array. for instance if your gradient matrices are grad_w1 and grad_w2
     # you would use code similar to the one below to create a flat array
-    # obj_grad = np.concatenate((grad_w1.flatten(), grad_w2.flatten()),0)
+    #obj_grad = np.concatenate((grad_w1.flatten(), grad_w2.flatten()),0)
+
+
     obj_grad = np.array([])
 
     return (obj_val, obj_grad)
@@ -243,11 +277,12 @@ def nnPredict(w1, w2, data):
     #take data and apply w2 to it
     test = np.c_[test,ones]
     test = test.dot(np.transpose(w2))
+
     #apply sigmoid
     test = sigmoid(test)
 
     #put lables on each function
-    np.amax(test, axis = 0)
+    lables = np.amax(test, axis = 0)
 
     return labels
 
