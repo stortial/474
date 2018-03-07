@@ -185,6 +185,8 @@ def nnObjFunction(params, *args):
     w2 = params[(n_hidden * (n_input + 1)):].reshape((n_class, (n_hidden + 1)))
     obj_val = 0
 
+    obj_grad = np.array([])
+
     # Your code here
 
     #add a column of ones to training data for the bias nodes
@@ -207,36 +209,35 @@ def nnObjFunction(params, *args):
     afterTest = sigmoid(OjWeight)
     #np.set_printoptions(threshold=np.nan)
 
+    #start gradient for w2
     truth_label = np.zeros((afterTest.shape[0], afterTest.shape[1]))
 
+    #determine the error of the weights associated with the output layer
     for x in range(0,train_label.shape[0]):
         truth_label[x, int(train_label[x])-1] = 1
     #this gives us delta l, but we need delta j
     deltaL = (truth_label-afterTest)*afterTest*(1-afterTest)
     #deltaL : 2998 * 10
 
-    #do dot product on almostEndw2 and the output of the perceptron
-    amount_to_update_w2_by = np.transpose(deltaL).dot(Ojconcat)
+    #do dot product on deltal and ojconcat to get
+    Jw2 = np.transpose(deltaL).dot(Ojconcat)
 
-    #grad_w2 = w2 + amount_to_update_w2_by #* lambdaval
+    #gradient for w2 completed
+    grad_w2 = w2 - Jw2 * lambdaval
 
-    print (w2)
 
-    grad_w2 = w2 + amount_to_update_w2_by# * lambdaval
+    #start gradient of w1
 
-    print (grad_w2)
 
-    deltaJ = np.transpose(deltaL) @ Oj
+    
+    #deltaJ = np.transpose(deltaL) @ Oj
     #Oj = 2998 * 50
     #delta J = 10 * 51
     #testInitial = 2998*694
     #w1 = 50 * 694
 
-    grad_w1 = w1 + lambdaval * deltaJ @ testInitial
+    #grad_w1 = w1 + lambdaval * deltaJ @ testInitial
 
-
-    print(almostEndw2.shape)
-    print(test.shape)
     print("ADAM")
 
 
@@ -250,7 +251,6 @@ def nnObjFunction(params, *args):
     obj_grad = np.concatenate((grad_w1.flatten(), grad_w2.flatten()),0)
 
 
-    obj_grad = np.array([])
 
     return (obj_val, obj_grad)
 
