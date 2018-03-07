@@ -90,7 +90,7 @@ def preprocess():
 
    # remove features that have same value for all points in the training data
     same = [True] * 784
-    #print(train_data[0])
+
     for j in range(len(train_data)-1):
         for x in range(0, len(train_data[0])-1):
             if train_data[j].item(x) != train_data[j+1].item(x):
@@ -178,7 +178,9 @@ def nnObjFunction(params, *args):
     %     layer to unit i in output layer."""
 
     n_input, n_hidden, n_class, training_data, training_label, lambdaval = args
-
+    print(n_input)
+    print(n_hidden)
+    print(n_class)
     w1 = params[0:n_hidden * (n_input + 1)].reshape((n_hidden, (n_input + 1)))
     w2 = params[(n_hidden * (n_input + 1)):].reshape((n_class, (n_hidden + 1)))
     obj_val = 0
@@ -189,45 +191,53 @@ def nnObjFunction(params, *args):
     ones = [1]*2998
 
     #take data and apply w1 to it
-    test = np.c_[training_data, ones]
-    test = test.dot(np.transpose(w1))
+    testInitial = np.c_[training_data, ones]
+    test = testInitial.dot(np.transpose(w1))
 
     #apply sigmoid
-    test = sigmoid(test)
+    Oj = sigmoid(test)
 
     #take data and apply w2 to it
-    test = np.c_[test,ones]
-    afterTest = test.dot(np.transpose(w2))
-
+    Ojconcat= Oj
+   # print(OjWeight.shape[0],OjWeight.shape[1])
+    Ojconcat = np.c_[Ojconcat,ones]
+   # print(OjWeight.shape[0],OjWeight.shape[1])
+    OjWeight = Ojconcat.dot(np.transpose(w2))
     #apply sigmoid
-    afterTest = sigmoid(afterTest)
-
-
+    afterTest = sigmoid(OjWeight)
     #np.set_printoptions(threshold=np.nan)
 
     truth_label = np.zeros((afterTest.shape[0], afterTest.shape[1]))
 
     for x in range(0,train_label.shape[0]):
         truth_label[x, int(train_label[x])-1] = 1
-
     #this gives us delta l, but we need delta j
-    almostEndw2 = (truth_label-afterTest)*afterTest*(1-afterTest)
+    deltaL = (truth_label-afterTest)*afterTest*(1-afterTest)
+    #deltaL : 2998 * 10
 
     #do dot product on almostEndw2 and the output of the perceptron
-    endw2 = np.transpose(almostEndw2).dot(test)
+    amount_to_update_w2_by = np.transpose(deltaL).dot(Ojconcat)
 
-    #next is to multiply result by oj(1-oj)
-    # just have to figure out oj
-    #endw2 = total*oj*(1-oj)
+    #grad_w2 = w2 + amount_to_update_w2_by #* lambdaval
 
-    print(almostEndw2)
+    print (w2)
+
+    grad_w2 = w2 + amount_to_update_w2_by# * lambdaval
+
+    print (grad_w2)
+
+    deltaJ = np.transpose(deltaL) @ Oj
+    #Oj = 2998 * 50
+    #delta J = 10 * 51
+    #testInitial = 2998*694
+    #w1 = 50 * 694
+
+    grad_w1 = w1 + lambdaval * deltaJ @ testInitial
+
+
     print(almostEndw2.shape)
     print(test.shape)
     print("ADAM")
-
-    #print (endw2)
-
-
 
 
     #update rule for w1
@@ -237,7 +247,7 @@ def nnObjFunction(params, *args):
 
     # Make sure you reshape the gradient matrices to a 1D array. for instance if your gradient matrices are grad_w1 and grad_w2
     # you would use code similar to the one below to create a flat array
-    #obj_grad = np.concatenate((grad_w1.flatten(), grad_w2.flatten()),0)
+    obj_grad = np.concatenate((grad_w1.flatten(), grad_w2.flatten()),0)
 
 
     obj_grad = np.array([])
@@ -261,10 +271,6 @@ def nnPredict(w1, w2, data):
 
     % Output:
     % label: a column vector of predicted labels"""
-
-    labels = np.array([])
-    # Your code here
-
     #add a column of ones to training data for the bias nodes
     ones = [1]*2998
 
@@ -283,10 +289,12 @@ def nnPredict(w1, w2, data):
     test = sigmoid(test)
 
     #put lables on each function
+
+    lables = np.amax(test, axis = 0)
+
     lables = np.amax(test, axis = 0)
 
     return labels
-
 
 """**************Neural Network Script Starts here********************************"""
 
@@ -330,6 +338,7 @@ nn_params = minimize(nnObjFunction, initialWeights, jac=True, args=args, method=
 w1 = nn_params.x[0:n_hidden * (n_input + 1)].reshape((n_hidden, (n_input + 1)))
 w2 = nn_params.x[(n_hidden * (n_input + 1)):].reshape((n_class, (n_hidden + 1)))
 
+print(w1.shape)
 # Test the computed parameters
 
 predicted_label = nnPredict(w1, w2, train_data)
