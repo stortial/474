@@ -220,6 +220,7 @@ def nnObjFunction(params, *args):
     # just have to figure out oj
     #endw2 = total*oj*(1-oj)
 
+    print(almostEndw2)
     print(almostEndw2.shape)
     print(test.shape)
     print("ADAM")
