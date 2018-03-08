@@ -209,27 +209,37 @@ def nnObjFunction(params, *args):
     afterTest = sigmoid(OjWeight)
     #np.set_printoptions(threshold=np.nan)
 
+
     #start gradient for w2
     truth_label = np.zeros((afterTest.shape[0], afterTest.shape[1]))
 
     #determine the error of the weights associated with the output layer
     for x in range(0,train_label.shape[0]):
         truth_label[x, int(train_label[x])-1] = 1
-    #this gives us delta l, but we need delta j
+
+    #this gives us delta l, we do this with * since it is just multiplication
+    #   and we dont need to sum the parts
     deltaL = (truth_label-afterTest)*afterTest*(1-afterTest)
     #deltaL : 2998 * 10
 
-    #do dot product on deltal and ojconcat to get
-    Jw2 = np.transpose(deltaL).dot(Ojconcat)
+
+
+    #do dot product on deltal and oj to get jw2
+    Jw2 = np.transpose(deltaL).dot(Oj)
 
     #gradient for w2 completed
-    grad_w2 = w2 - Jw2 * lambdaval
+    grad_w2 = w2 - (Jw2 * lambdaval)
 
 
     #start gradient of w1
+    #w1????
+    temp = (1-Oj) *Oj*w1
 
+    Jw1 = np.transpose(deltaL).dot(w1)
 
-    
+    #gradient for w1 completed
+    grad_w1 = Jw1*sigmoidPrime(training_data)
+
     #deltaJ = np.transpose(deltaL) @ Oj
     #Oj = 2998 * 50
     #delta J = 10 * 51
