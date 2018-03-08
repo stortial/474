@@ -27,6 +27,8 @@ def sigmoid(z):
 
     return  1/(1+np.exp(-z))
 
+def sigmoidPrime(z):
+    return (np.exp(-z)/(1+np.exp(-z))**2)
 
 def preprocess():
     """ Input:
@@ -227,13 +229,17 @@ def nnObjFunction(params, *args):
     #do dot product on deltal and oj to get jw2
     Jw2 = np.transpose(deltaL).dot(Oj)
 
+    print(Jw2.shape)
+    print(w2.shape)
+    temp = -(Jw2 * lambdaval)
+
     #gradient for w2 completed
-    grad_w2 = w2 - (Jw2 * lambdaval)
+    grad_w2 = np.add(w2 ,temp)
 
 
     #start gradient of w1
     #w1????
-    temp = (1-Oj) *Oj*w1
+    #temp = (1-Oj) *Oj*w1
 
     Jw1 = np.transpose(deltaL).dot(w1)
 
