@@ -266,6 +266,12 @@ def nnObjFunction(params, *args):
     # you would use code similar to the one below to create a flat array
     obj_grad = np.concatenate((grad_w1.flatten(), grad_w2.flatten()),0)
 
+    JW12Sum = np.sum((truth_label * np.log(afterTest)) + ((1 - truth_label) * np.log(1-afterTest)))
+    JW12 = (-1/n) * JW12Sum
+
+    w1Sum = w1.sum()
+    w2Sum = w2.sum()
+    obj_val = JW12 + lambdaval/(2*n) * (w1Sum**2 + w2Sum**2)
 
 
     return (obj_val, obj_grad)
