@@ -192,11 +192,11 @@ def nnObjFunction(params, *args):
     # Your code here
 
     #add a column of ones to training data for the bias nodes
-    ones = [1]*2998
+
 
     n = training_data.shape[0]
 
-
+    ones = [1]*n
 
     #take data and apply w1 to it
     testInitial = np.c_[training_data, ones]
@@ -221,7 +221,7 @@ def nnObjFunction(params, *args):
 
     #determine the error of the weights associated with the output layer
     for x in range(0,n):
-        truth_label[x, int(train_label[x])-1] = 1
+        truth_label[x, int(training_label[x])-1] = 1
 
 
 

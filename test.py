@@ -47,28 +47,29 @@ def nnObjFunction(params, *args):
     %     layer to unit i in output layer."""
 
     n_input, n_hidden, n_class, training_data, training_label, lambdaval = args
-    print(n_input)
-    print(n_hidden)
-    print(n_class)
     w1 = params[0:n_hidden * (n_input + 1)].reshape((n_hidden, (n_input + 1)))
     w2 = params[(n_hidden * (n_input + 1)):].reshape((n_class, (n_hidden + 1)))
     obj_val = 0
 
+    print ("ADAM")
     obj_grad = np.array([])
 
     # Your code here
 
     #add a column of ones to training data for the bias nodes
-    ones = [1]*2998
+
 
     n = training_data.shape[0]
+    ones = [1]*n
 
-
+    print ("BENNNNN")
 
     #take data and apply w1 to it
     testInitial = np.c_[training_data, ones]
+    print ("HUUU")
     test = testInitial.dot(np.transpose(w1))
 
+    print ("YANG")
     #apply sigmoid
     Oj = sigmoid(test)
 
@@ -88,7 +89,7 @@ def nnObjFunction(params, *args):
 
     #determine the error of the weights associated with the output layer
     for x in range(0,n):
-        truth_label[x, int(train_label[x])-1] = 1
+        truth_label[x, int(training_label[x])-1] = 1
 
 
 
@@ -116,7 +117,6 @@ def nnObjFunction(params, *args):
 
     #calculate function 10
     Jw1 = np.transpose(temp).dot(testInitial)
-    print ("ADAMMMMMM")
     #get the lam value to go inside 17
     lam = lambdaval*w1
 
@@ -136,12 +136,19 @@ def nnObjFunction(params, *args):
 n_input = 5
 n_hidden = 3
 n_class = 2
+print("a1")
 training_data = np.array([np.linspace(0,1,num=5),np.linspace(1,0,num=5)])
+print("a2")
 training_label = np.array([0,1])
+print("a3")
 lambdaval = 0
+print("a4")
 params = np.linspace(-5,5, num=26)
+print("a5")
 args = (n_input, n_hidden, n_class, training_data, training_label, lambdaval)
+print("a6")
 objval,objgrad = nnObjFunction(params, *args)
+print("a7")
 print("Objective value:")
 print(objval)
 print("Gradient values: ")
