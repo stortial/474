@@ -98,10 +98,30 @@ def nnObjFunction(params, *args):
     # (9)
     Jw2 = np.transpose(deltaL).dot(Ojconcat)
 
+    #get the lam value to go inside 16
     lam = lambdaval*w2
 
-    #grad_w2
+    #grad_w2 based on 16
     grad_w2 = (np.add(Jw2,lam))/n
+
+    adam = deltaL.dot(w2)
+
+    #the front of function 12
+    front = (1-Ojconcat)*Ojconcat*adam
+
+    temp = front
+    temp = np.transpose(temp)[0:50]
+
+    temp = np.transpose(temp)
+
+    #calculate function 10
+    Jw1 = np.transpose(temp).dot(testInitial)
+    print ("ADAMMMMMM")
+    #get the lam value to go inside 17
+    lam = lambdaval*w1
+
+    #grad_w1 based on 17
+    grad_w1 = (np.add(Jw1,lam))/n
 
     # Make sure you reshape the gradient matrices to a 1D array. for instance if your gradient matrices are grad_w1 and grad_w2
     # you would use code similar to the one below to create a flat array
@@ -110,6 +130,7 @@ def nnObjFunction(params, *args):
 
 
     return (obj_val, obj_grad)
+
 
 
 n_input = 5

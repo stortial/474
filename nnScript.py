@@ -237,18 +237,18 @@ def nnObjFunction(params, *args):
     #grad_w2 based on 16
     grad_w2 = (np.add(Jw2,lam))/n
 
-
     adam = deltaL.dot(w2)
 
     #the front of function 12
     front = (1-Ojconcat)*Ojconcat*adam
 
-    temp = w2
+    temp = front
+    temp = np.transpose(temp)[0:50]
 
-    print (w2.shape)
-    print (front.shape)
+    temp = np.transpose(temp)
+
     #calculate function 10
-    Jw1 = np.transpose(front).dot(testInitial)
+    Jw1 = np.transpose(temp).dot(testInitial)
     print ("ADAMMMMMM")
     #get the lam value to go inside 17
     lam = lambdaval*w1
@@ -304,7 +304,7 @@ def nnPredict(w1, w2, data):
 
     lables = np.amax(test, axis = 0)
 
-    return labels
+    return lables
 
 """**************Neural Network Script Starts here********************************"""
 
