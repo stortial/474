@@ -243,8 +243,7 @@ def nnObjFunction(params, *args):
     front = (1-Ojconcat)*Ojconcat*adam
 
     temp = front
-    temp = np.transpose(temp)[0:50]
-
+    temp = np.transpose(temp)[0:n_hidden]
     temp = np.transpose(temp)
 
     #calculate function 10
@@ -282,29 +281,34 @@ def nnPredict(w1, w2, data):
     % Output:
     % label: a column vector of predicted labels"""
     #add a column of ones to training data for the bias nodes
-    ones = [1]*2998
+    n = data.shape[0]
+    ones = [1]*n
 
     #take data and apply w1 to it
-    test = np.c_[data, ones]
-    test = test.dot(np.transpose(w1))
+    w1concat = np.c_[data, ones]
+    presigw1 = w1concat.dot(np.transpose(w1))
 
     #apply sigmoid
-    test = sigmoid(test)
+    postsigw1 = sigmoid(presigw1)
+
+    ones = [1]*postsigw1.shape[0]
 
     #take data and apply w2 to it
-    test = np.c_[test,ones]
-    test = test.dot(np.transpose(w2))
+    w2concat = np.c_[presigw1,ones]
+    presigw2 = w2concat.dot(np.transpose(w2))
 
     #apply sigmoid
-    test = sigmoid(test)
+    postsigw2 = sigmoid(presigw2)
 
     #put lables on each function
+    labels = np.empty([data.shape[0], 1])
 
-    lables = np.amax(test, axis = 0)
+    for index in range(0,postsigw2.shape[0]):
+        labels[index] = np.argmax(postsigw2[index])
 
-    lables = np.amax(test, axis = 0)
+    #labels = np.amax(test, axis = 0)
 
-    return lables
+    return labels
 
 """**************Neural Network Script Starts here********************************"""
 
@@ -348,7 +352,6 @@ nn_params = minimize(nnObjFunction, initialWeights, jac=True, args=args, method=
 w1 = nn_params.x[0:n_hidden * (n_input + 1)].reshape((n_hidden, (n_input + 1)))
 w2 = nn_params.x[(n_hidden * (n_input + 1)):].reshape((n_class, (n_hidden + 1)))
 
-print(w1.shape)
 # Test the computed parameters
 
 predicted_label = nnPredict(w1, w2, train_data)
