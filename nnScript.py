@@ -194,6 +194,10 @@ def nnObjFunction(params, *args):
     #add a column of ones to training data for the bias nodes
     ones = [1]*2998
 
+
+
+
+
     #take data and apply w1 to it
     testInitial = np.c_[training_data, ones]
     test = testInitial.dot(np.transpose(w1))
@@ -219,48 +223,29 @@ def nnObjFunction(params, *args):
     for x in range(0,train_label.shape[0]):
         truth_label[x, int(train_label[x])-1] = 1
 
-    #this gives us delta l, we do this with * since it is just multiplication
-    #   and we dont need to sum the parts
-    deltaL = (truth_label-afterTest)*afterTest*(1-afterTest)
-    #deltaL : 2998 * 10
 
 
+    # deltaL = ol - yl
+    deltaL =  afterTest - truth_label
 
-    #do dot product on deltal and oj to get jw2
-    Jw2 = np.transpose(deltaL).dot(Oj)
+    # (9)
+    grad_w2 = np.transpose(deltaL)*(Oj)
 
-    print(Jw2.shape)
-    print(w2.shape)
-    temp = -(Jw2 * lambdaval)
+    # Front term of (12) TODO: Might need to be a dot product
+    frontTerm = np.transpose((1 - Oj)*Oj).dot(training_data)
 
-    #gradient for w2 completed
-    grad_w2 = np.add(w2 ,temp)
+    # Back term of (12)
+    backTerm = deltaL.dot(w2)
 
+    # concatenate ones to backTerm
+    onesFrontTerm = [1]*693
+    frontTerm = np.c_[np.transpose(frontTerm),np.transpose(onesFrontTerm)]
 
-    #start gradient of w1
-    #w1????
-    #temp = (1-Oj) *Oj*w1
-
-    Jw1 = np.transpose(deltaL).dot(w1)
-
-    #gradient for w1 completed
-    grad_w1 = Jw1*sigmoidPrime(training_data)
-
-    #deltaJ = np.transpose(deltaL) @ Oj
-    #Oj = 2998 * 50
-    #delta J = 10 * 51
-    #testInitial = 2998*694
-    #w1 = 50 * 694
-
-    #grad_w1 = w1 + lambdaval * deltaJ @ testInitial
+    # Combine (12)
+    grad_w1 = backTerm.dot(np.transpose(frontTerm))
+    print(grad_w2)
 
     print("ADAM")
-
-
-    #update rule for w1
-    #endw1 = (stuff-test)*test*(1-test)
-
-    #update rule for w2
 
     # Make sure you reshape the gradient matrices to a 1D array. for instance if your gradient matrices are grad_w1 and grad_w2
     # you would use code similar to the one below to create a flat array
