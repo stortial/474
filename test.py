@@ -47,11 +47,13 @@ def nnObjFunction(params, *args):
     %     layer to unit i in output layer."""
 
     n_input, n_hidden, n_class, training_data, training_label, lambdaval = args
+    print(n_input)
+    print(n_hidden)
+    print(n_class)
     w1 = params[0:n_hidden * (n_input + 1)].reshape((n_hidden, (n_input + 1)))
     w2 = params[(n_hidden * (n_input + 1)):].reshape((n_class, (n_hidden + 1)))
     obj_val = 0
 
-    print ("ADAM")
     obj_grad = np.array([])
 
     # Your code here
@@ -60,16 +62,13 @@ def nnObjFunction(params, *args):
 
 
     n = training_data.shape[0]
-    ones = [1]*n
 
-    print ("BENNNNN")
+    ones = [1]*n
 
     #take data and apply w1 to it
     testInitial = np.c_[training_data, ones]
-    print ("HUUU")
     test = testInitial.dot(np.transpose(w1))
 
-    print ("YANG")
     #apply sigmoid
     Oj = sigmoid(test)
 
@@ -89,39 +88,37 @@ def nnObjFunction(params, *args):
 
     #determine the error of the weights associated with the output layer
     for x in range(0,n):
-        truth_label[x, int(training_label[x])-1] = 1
-
-
+        truth_label[x, int(training_label[x])] = 1
 
     # deltaL = ol - yl
     deltaL =  (truth_label - afterTest)
 
     # (9)
-    Jw2 = np.transpose(deltaL).dot(Ojconcat)
+    Jw2 = -(np.transpose(deltaL).dot(Ojconcat))
 
     #get the lam value to go inside 16
-    lam = lambdaval*w2
+    lam2 = lambdaval*w2
 
     #grad_w2 based on 16
-    grad_w2 = (np.add(Jw2,lam))/n
+    grad_w2 = (np.add(lam2,Jw2))/n
 
     adam = deltaL.dot(w2)
 
     #the front of function 12
-    front = (1-Ojconcat)*Ojconcat*adam
+    front = -(1-Ojconcat)*Ojconcat*adam
 
     temp = front
-    temp = np.transpose(temp)[0:50]
-
+    temp = np.transpose(temp)[0:n_hidden]
     temp = np.transpose(temp)
 
     #calculate function 10
     Jw1 = np.transpose(temp).dot(testInitial)
+
     #get the lam value to go inside 17
-    lam = lambdaval*w1
+    lam1 = lambdaval*w1
 
     #grad_w1 based on 17
-    grad_w1 = (np.add(Jw1,lam))/n
+    grad_w1 = (np.add(lam1,Jw1))/n
 
     # Make sure you reshape the gradient matrices to a 1D array. for instance if your gradient matrices are grad_w1 and grad_w2
     # you would use code similar to the one below to create a flat array
@@ -130,7 +127,6 @@ def nnObjFunction(params, *args):
 
 
     return (obj_val, obj_grad)
-
 
 
 n_input = 5

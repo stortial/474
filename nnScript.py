@@ -92,6 +92,9 @@ def preprocess():
 
    # remove features that have same value for all points in the training data
     same = [True] * 784
+    print (test_data.shape)
+    print (train_data.shape)
+
 
     for j in range(len(train_data)-1):
         for x in range(0, len(train_data[0])-1):
@@ -104,9 +107,12 @@ def preprocess():
             train_data = np.delete(train_data,n,1)
         n += 1
 
-
-    #print(train_data[0])
-
+    # remove common features
+    n = 0
+    while n < (len(test_data[0])-1):
+        if same[n]:
+            test_data = np.delete(test_data,n,1)
+        n += 1
 
     # convert data to double
     train_data = np.double(train_data)
@@ -221,7 +227,7 @@ def nnObjFunction(params, *args):
 
     #determine the error of the weights associated with the output layer
     for x in range(0,n):
-        truth_label[x, int(training_label[x])-1] = 1
+        truth_label[x, int(training_label[x])] = 1
 
 
 
@@ -229,18 +235,18 @@ def nnObjFunction(params, *args):
     deltaL =  (truth_label - afterTest)
 
     # (9)
-    Jw2 = np.transpose(deltaL).dot(Ojconcat)
+    Jw2 = -(np.transpose(deltaL).dot(Ojconcat))
 
     #get the lam value to go inside 16
-    lam = lambdaval*w2
+    lam2 = lambdaval*w2
 
     #grad_w2 based on 16
-    grad_w2 = (np.add(Jw2,lam))/n
+    grad_w2 = (np.add(lam2,Jw2))/n
 
     adam = deltaL.dot(w2)
 
     #the front of function 12
-    front = (1-Ojconcat)*Ojconcat*adam
+    front = -(1-Ojconcat)*Ojconcat*adam
 
     temp = front
     temp = np.transpose(temp)[0:n_hidden]
@@ -248,12 +254,12 @@ def nnObjFunction(params, *args):
 
     #calculate function 10
     Jw1 = np.transpose(temp).dot(testInitial)
-    print ("ADAMMMMMM")
+
     #get the lam value to go inside 17
-    lam = lambdaval*w1
+    lam1 = lambdaval*w1
 
     #grad_w1 based on 17
-    grad_w1 = (np.add(Jw1,lam))/n
+    grad_w1 = (np.add(lam1,Jw1))/n
 
     # Make sure you reshape the gradient matrices to a 1D array. for instance if your gradient matrices are grad_w1 and grad_w2
     # you would use code similar to the one below to create a flat array
@@ -283,6 +289,9 @@ def nnPredict(w1, w2, data):
     #add a column of ones to training data for the bias nodes
     n = data.shape[0]
     ones = [1]*n
+    print ("FLAG")
+    print (data.shape)
+    print (w1.shape)
 
     #take data and apply w1 to it
     w1concat = np.c_[data, ones]
