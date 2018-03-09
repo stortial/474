@@ -57,7 +57,8 @@ def preprocess():
      - normalize the data to [0, 1]
      - divide the original data set to training, validation and testing set"""
 
-    mat = loadmat('mnist_sample.mat') #loads the MAT object as a Dictionary
+    mat = loadmat('mnist_all.mat') #loads the MAT object as a Dictionary
+    n_valid = 5000
     train_data = np.concatenate((mat['train0'], mat['train1'],
                                  mat['train2'], mat['train3'],
                                  mat['train4'], mat['train5'],
@@ -92,6 +93,9 @@ def preprocess():
 
    # remove features that have same value for all points in the training data
     same = [True] * 784
+    print (test_data.shape)
+    print (train_data.shape)
+
 
     for j in range(len(train_data)-1):
         for x in range(0, len(train_data[0])-1):
@@ -104,9 +108,12 @@ def preprocess():
             train_data = np.delete(train_data,n,1)
         n += 1
 
-
-    #print(train_data[0])
-
+    # remove common features
+    n = 0
+    while n < (len(test_data[0])-1):
+        if same[n]:
+            test_data = np.delete(test_data,n,1)
+        n += 1
 
     # convert data to double
     train_data = np.double(train_data)
@@ -121,7 +128,7 @@ def preprocess():
     size = len(r)
 
     #percent of train data to be split
-    tr = .5
+    tr = .9
     va = 1-tr
 
     training = int(size*tr)
@@ -192,11 +199,11 @@ def nnObjFunction(params, *args):
     # Your code here
 
     #add a column of ones to training data for the bias nodes
-    ones = [1]*2998
 
 
+    n = training_data.shape[0]
 
-
+    ones = [1]*n
 
     #take data and apply w1 to it
     testInitial = np.c_[training_data, ones]
@@ -214,38 +221,46 @@ def nnObjFunction(params, *args):
     #apply sigmoid
     afterTest = sigmoid(OjWeight)
     #np.set_printoptions(threshold=np.nan)
-
-
+    print ("HELOOOO")
+    print (afterTest.shape)
     #start gradient for w2
     truth_label = np.zeros((afterTest.shape[0], afterTest.shape[1]))
 
     #determine the error of the weights associated with the output layer
-    for x in range(0,train_label.shape[0]):
-        truth_label[x, int(train_label[x])-1] = 1
+    for x in range(0,n):
+        truth_label[x, int(training_label[x])-1] = 1
 
 
 
     # deltaL = ol - yl
-    deltaL =  afterTest - truth_label
+    deltaL =  (truth_label - afterTest)
 
     # (9)
-    grad_w2 = np.transpose(deltaL)*(Oj)
+    Jw2 = -(np.transpose(deltaL).dot(Ojconcat))
 
-    # Front term of (12) TODO: Might need to be a dot product
-    frontTerm = np.transpose((1 - Oj)*Oj).dot(training_data)
+    #get the lam value to go inside 16
+    lam2 = lambdaval*w2
 
-    # Back term of (12)
-    backTerm = deltaL.dot(w2)
+    #grad_w2 based on 16
+    grad_w2 = (np.add(lam2,Jw2))/n
 
-    # concatenate ones to backTerm
-    onesFrontTerm = [1]*693
-    frontTerm = np.c_[np.transpose(frontTerm),np.transpose(onesFrontTerm)]
+    adam = deltaL.dot(w2)
 
-    # Combine (12)
-    grad_w1 = backTerm.dot(np.transpose(frontTerm))
-    print(grad_w2)
+    #the front of function 12
+    front = -(1-Ojconcat)*Ojconcat*adam
 
-    print("ADAM")
+    temp = front
+    temp = np.transpose(temp)[0:n_hidden]
+    temp = np.transpose(temp)
+
+    #calculate function 10
+    Jw1 = np.transpose(temp).dot(testInitial)
+
+    #get the lam value to go inside 17
+    lam1 = lambdaval*w1
+
+    #grad_w1 based on 17
+    grad_w1 = (np.add(lam1,Jw1))/n
 
     # Make sure you reshape the gradient matrices to a 1D array. for instance if your gradient matrices are grad_w1 and grad_w2
     # you would use code similar to the one below to create a flat array
@@ -273,27 +288,35 @@ def nnPredict(w1, w2, data):
     % Output:
     % label: a column vector of predicted labels"""
     #add a column of ones to training data for the bias nodes
-    ones = [1]*2998
+    n = data.shape[0]
+    ones = [1]*n
+    print ("FLAG")
+    print (data.shape)
+    print (w1.shape)
 
     #take data and apply w1 to it
-    test = np.c_[data, ones]
-    test = test.dot(np.transpose(w1))
+    w1concat = np.c_[data, ones]
+    presigw1 = w1concat.dot(np.transpose(w1))
 
     #apply sigmoid
-    test = sigmoid(test)
+    postsigw1 = sigmoid(presigw1)
+
+    ones = [1]*postsigw1.shape[0]
 
     #take data and apply w2 to it
-    test = np.c_[test,ones]
-    test = test.dot(np.transpose(w2))
+    w2concat = np.c_[presigw1,ones]
+    presigw2 = w2concat.dot(np.transpose(w2))
 
     #apply sigmoid
-    test = sigmoid(test)
+    postsigw2 = sigmoid(presigw2)
 
     #put lables on each function
+    labels = np.empty([data.shape[0], 1])
 
-    lables = np.amax(test, axis = 0)
+    for index in range(0,postsigw2.shape[0]):
+        labels[index] = np.argmax(postsigw2[index])
 
-    lables = np.amax(test, axis = 0)
+    #labels = np.amax(test, axis = 0)
 
     return labels
 
@@ -339,7 +362,6 @@ nn_params = minimize(nnObjFunction, initialWeights, jac=True, args=args, method=
 w1 = nn_params.x[0:n_hidden * (n_input + 1)].reshape((n_hidden, (n_input + 1)))
 w2 = nn_params.x[(n_hidden * (n_input + 1)):].reshape((n_class, (n_hidden + 1)))
 
-print(w1.shape)
 # Test the computed parameters
 
 predicted_label = nnPredict(w1, w2, train_data)
