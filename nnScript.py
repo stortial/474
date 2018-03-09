@@ -194,7 +194,7 @@ def nnObjFunction(params, *args):
     #add a column of ones to training data for the bias nodes
     ones = [1]*2998
 
-
+    n = training_data.shape[0]
 
 
 
@@ -214,38 +214,47 @@ def nnObjFunction(params, *args):
     #apply sigmoid
     afterTest = sigmoid(OjWeight)
     #np.set_printoptions(threshold=np.nan)
-
-
+    print ("HELOOOO")
+    print (afterTest.shape)
     #start gradient for w2
     truth_label = np.zeros((afterTest.shape[0], afterTest.shape[1]))
 
     #determine the error of the weights associated with the output layer
-    for x in range(0,train_label.shape[0]):
+    for x in range(0,n):
         truth_label[x, int(train_label[x])-1] = 1
 
 
 
     # deltaL = ol - yl
-    deltaL =  afterTest - truth_label
+    deltaL =  (truth_label - afterTest)
 
     # (9)
-    grad_w2 = np.transpose(deltaL)*(Oj)
+    Jw2 = np.transpose(deltaL).dot(Ojconcat)
 
-    # Front term of (12) TODO: Might need to be a dot product
-    frontTerm = np.transpose((1 - Oj)*Oj).dot(training_data)
+    #get the lam value to go inside 16
+    lam = lambdaval*w2
 
-    # Back term of (12)
-    backTerm = deltaL.dot(w2)
+    #grad_w2 based on 16
+    grad_w2 = (np.add(Jw2,lam))/n
 
-    # concatenate ones to backTerm
-    onesFrontTerm = [1]*693
-    frontTerm = np.c_[np.transpose(frontTerm),np.transpose(onesFrontTerm)]
 
-    # Combine (12)
-    grad_w1 = backTerm.dot(np.transpose(frontTerm))
-    print(grad_w2)
+    adam = deltaL.dot(w2)
 
-    print("ADAM")
+    #the front of function 12
+    front = (1-Ojconcat)*Ojconcat*adam
+
+    temp = w2
+
+    print (w2.shape)
+    print (front.shape)
+    #calculate function 10
+    Jw1 = np.transpose(front).dot(testInitial)
+    print ("ADAMMMMMM")
+    #get the lam value to go inside 17
+    lam = lambdaval*w1
+
+    #grad_w1 based on 17
+    grad_w1 = (np.add(Jw1,lam))/n
 
     # Make sure you reshape the gradient matrices to a 1D array. for instance if your gradient matrices are grad_w1 and grad_w2
     # you would use code similar to the one below to create a flat array
