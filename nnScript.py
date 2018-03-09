@@ -57,7 +57,8 @@ def preprocess():
      - normalize the data to [0, 1]
      - divide the original data set to training, validation and testing set"""
 
-    mat = loadmat('mnist_sample.mat') #loads the MAT object as a Dictionary
+    mat = loadmat('mnist_all.mat') #loads the MAT object as a Dictionary
+    n_valid = 5000
     train_data = np.concatenate((mat['train0'], mat['train1'],
                                  mat['train2'], mat['train3'],
                                  mat['train4'], mat['train5'],
@@ -127,7 +128,7 @@ def preprocess():
     size = len(r)
 
     #percent of train data to be split
-    tr = .5
+    tr = .9
     va = 1-tr
 
     training = int(size*tr)
@@ -227,7 +228,7 @@ def nnObjFunction(params, *args):
 
     #determine the error of the weights associated with the output layer
     for x in range(0,n):
-        truth_label[x, int(training_label[x])] = 1
+        truth_label[x, int(training_label[x])-1] = 1
 
 
 
