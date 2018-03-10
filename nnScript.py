@@ -30,6 +30,15 @@ def sigmoid(z):
 def sigmoidPrime(z):
     return (np.exp(-z)/(1+np.exp(-z))**2)
 
+def shuffle_in_unison(a, b):
+    shuffled_a = np.empty(a.shape, dtype=a.dtype)
+    shuffled_b = np.empty(b.shape, dtype=b.dtype)
+    permutation = np.random.permutation(len(a))
+    for old_index, new_index in enumerate(permutation):
+        shuffled_a[new_index] = a[old_index]
+        shuffled_b[new_index] = b[old_index]
+    return shuffled_a, shuffled_b
+
 def preprocess():
     """ Input:
      Although this function doesn't have any input, you are required to load
@@ -57,7 +66,7 @@ def preprocess():
      - normalize the data to [0, 1]
      - divide the original data set to training, validation and testing set"""
 
-    mat = loadmat('mnist_all.mat') #loads the MAT object as a Dictionary
+    mat = loadmat('mnist_sample.mat') #loads the MAT object as a Dictionary
     n_valid = 5000
     train_data = np.concatenate((mat['train0'], mat['train1'],
                                  mat['train2'], mat['train3'],
@@ -91,12 +100,33 @@ def preprocess():
                                 mat['test8'], mat['test9']), 0)
 
 
+
+
+
    # remove features that have same value for all points in the training data
+
+   #get the size of the matrix so we know how big to put it back
+
+    mix_label = np.vstack((train_label,test_label))
+    mix_data = np.vstack((train_data,test_data))
+
+    result = shuffle_in_unison(mix_label,mix_data)
+
+    shuffleLables = result[0]
+    shuffleData = result[1]
+
+    train_data = mix_data[:train_data.shape[0]]
+    test_data = mix_data[train_data.shape[0]:]
+
+    train_label = mix_label[:train_data.shape[0]]
+    test_label = mix_label[train_data.shape[0]:]
+
     same = [True] * 784
-    print (test_data.shape)
-    print (train_data.shape)
+    #print (test_data.shape[0])
+    print (train_data.shape[0])
+    print ("HERES THE LABEL")
 
-
+    #adam = j
     for j in range(len(train_data)-1):
         for x in range(0, len(train_data[0])-1):
             if train_data[j].item(x) != train_data[j+1].item(x):
@@ -137,11 +167,11 @@ def preprocess():
     validation_data = np.array([])
     validation_label = np.array([])
 
-    validation_data = train_data[r[val:],:]
-    validation_label = train_label[r[val:],:]
+    validation_data = train_data[:val]
+    validation_label = train_label[:val]
 
-    train_data = train_data[r[0:training],:]
-    train_label = train_label[r[0:training],:]
+    train_data = train_data[val:]
+    train_label = train_label[val:]
 
     print("preprocess done!")
 
@@ -187,9 +217,7 @@ def nnObjFunction(params, *args):
     %     layer to unit i in output layer."""
 
     n_input, n_hidden, n_class, training_data, training_label, lambdaval = args
-    print(n_input)
-    print(n_hidden)
-    print(n_class)
+
     w1 = params[0:n_hidden * (n_input + 1)].reshape((n_hidden, (n_input + 1)))
     w2 = params[(n_hidden * (n_input + 1)):].reshape((n_class, (n_hidden + 1)))
     obj_val = 0
@@ -221,16 +249,12 @@ def nnObjFunction(params, *args):
     #apply sigmoid
     afterTest = sigmoid(OjWeight)
     #np.set_printoptions(threshold=np.nan)
-    print ("HELOOOO")
-    print (afterTest.shape)
     #start gradient for w2
     truth_label = np.zeros((afterTest.shape[0], afterTest.shape[1]))
 
     #determine the error of the weights associated with the output layer
     for x in range(0,n):
         truth_label[x, int(training_label[x])-1] = 1
-
-
 
     # deltaL = ol - yl
     deltaL =  (truth_label - afterTest)
@@ -253,6 +277,14 @@ def nnObjFunction(params, *args):
     temp = np.transpose(temp)[0:n_hidden]
     temp = np.transpose(temp)
 
+    print (front.shape)
+    print (testInitial.shape)
+    print (w1.shape)
+    #Ojconcat = np.c_[Ojconcat,ones]
+    print ("ADAM")
+    #w1 = np.c_[np.transpose(w1),np.ones(w1.shape[1])]
+    #w1 = np.transpose(w1)
+    print (w1.shape)
     #calculate function 10
     Jw1 = np.transpose(temp).dot(testInitial)
 
@@ -320,10 +352,10 @@ def nnPredict(w1, w2, data):
     labels = np.empty([data.shape[0], 1])
 
     for index in range(0,postsigw2.shape[0]):
-        labels[index] = np.argmax(postsigw2[index])
+        labels[index] = np.argmax(postsigw2[index])+1
 
     #labels = np.amax(test, axis = 0)
-
+    #print (labels)
     return labels
 
 """**************Neural Network Script Starts here********************************"""
@@ -349,7 +381,7 @@ initial_w2 = initializeWeights(n_hidden, n_class)
 initialWeights = np.concatenate((initial_w1.flatten(), initial_w2.flatten()), 0)
 
 # set the regularization hyper-parameter
-lambdaval = 0
+lambdaval = 4
 
 args = (n_input, n_hidden, n_class, train_data, train_label, lambdaval)
 
