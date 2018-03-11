@@ -30,15 +30,6 @@ def sigmoid(z):
 def sigmoidPrime(z):
     return (np.exp(-z)/(1+np.exp(-z))**2)
 
-def shuffle_in_unison(a, b):
-    shuffled_a = np.empty(a.shape, dtype=a.dtype)
-    shuffled_b = np.empty(b.shape, dtype=b.dtype)
-    permutation = np.random.permutation(len(a))
-    for old_index, new_index in enumerate(permutation):
-        shuffled_a[new_index] = a[old_index]
-        shuffled_b[new_index] = b[old_index]
-    return shuffled_a, shuffled_b
-
 def preprocess():
     """ Input:
      Although this function doesn't have any input, you are required to load
@@ -100,33 +91,12 @@ def preprocess():
                                 mat['test8'], mat['test9']), 0)
 
 
-
-
-
    # remove features that have same value for all points in the training data
-
-   #get the size of the matrix so we know how big to put it back
-
-    mix_label = np.vstack((train_label,test_label))
-    mix_data = np.vstack((train_data,test_data))
-
-    result = shuffle_in_unison(mix_label,mix_data)
-
-    shuffleLables = result[0]
-    shuffleData = result[1]
-
-    train_data = mix_data[:train_data.shape[0]]
-    test_data = mix_data[train_data.shape[0]:]
-
-    train_label = mix_label[:train_data.shape[0]]
-    test_label = mix_label[train_data.shape[0]:]
-
     same = [True] * 784
-    #print (test_data.shape[0])
-    print (train_data.shape[0])
-    print ("HERES THE LABEL")
+    print (test_data.shape)
+    print (train_data.shape)
 
-    #adam = j
+
     for j in range(len(train_data)-1):
         for x in range(0, len(train_data[0])-1):
             if train_data[j].item(x) != train_data[j+1].item(x):
@@ -167,11 +137,11 @@ def preprocess():
     validation_data = np.array([])
     validation_label = np.array([])
 
-    validation_data = train_data[:val]
-    validation_label = train_label[:val]
+    validation_data = train_data[r[val:],:]
+    validation_label = train_label[r[val:],:]
 
-    train_data = train_data[val:]
-    train_label = train_label[val:]
+    train_data = train_data[r[0:training],:]
+    train_label = train_label[r[0:training],:]
 
     print("preprocess done!")
 
@@ -381,7 +351,7 @@ initial_w2 = initializeWeights(n_hidden, n_class)
 initialWeights = np.concatenate((initial_w1.flatten(), initial_w2.flatten()), 0)
 
 # set the regularization hyper-parameter
-lambdaval = 4
+lambdaval = 0
 
 args = (n_input, n_hidden, n_class, train_data, train_label, lambdaval)
 
