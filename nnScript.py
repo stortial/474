@@ -93,8 +93,8 @@ def preprocess():
 
    # remove features that have same value for all points in the training data
     same = [True] * 784
-    print (test_data.shape)
-    print (train_data.shape)
+    #print (test_data.shape)
+    #print (train_data.shape)
 
 
     for j in range(len(train_data)-1):
@@ -128,7 +128,7 @@ def preprocess():
     size = len(r)
 
     #percent of train data to be split
-    tr = .9
+    tr = .8
     va = 1-tr
 
     training = int(size*tr)
@@ -197,7 +197,9 @@ def nnObjFunction(params, *args):
     # Your code here
 
     #add a column of ones to training data for the bias nodes
-
+    #print (w1.shape)
+    #print (w2.shape)
+    #print ("ADAM")
 
     n = training_data.shape[0]
 
@@ -238,6 +240,7 @@ def nnObjFunction(params, *args):
     #grad_w2 based on 16
     grad_w2 = (np.add(lam2,Jw2))/n
 
+    #test = np.c_[test,ones]
     adam = deltaL.dot(w2)
 
     #the front of function 12
@@ -247,14 +250,6 @@ def nnObjFunction(params, *args):
     temp = np.transpose(temp)[0:n_hidden]
     temp = np.transpose(temp)
 
-    print (front.shape)
-    print (testInitial.shape)
-    print (w1.shape)
-    #Ojconcat = np.c_[Ojconcat,ones]
-    print ("ADAM")
-    #w1 = np.c_[np.transpose(w1),np.ones(w1.shape[1])]
-    #w1 = np.transpose(w1)
-    print (w1.shape)
     #calculate function 10
     Jw1 = np.transpose(temp).dot(testInitial)
 
@@ -263,6 +258,7 @@ def nnObjFunction(params, *args):
 
     #grad_w1 based on 17
     grad_w1 = (np.add(lam1,Jw1))/n
+
 
     # Make sure you reshape the gradient matrices to a 1D array. for instance if your gradient matrices are grad_w1 and grad_w2
     # you would use code similar to the one below to create a flat array
@@ -298,9 +294,9 @@ def nnPredict(w1, w2, data):
     #add a column of ones to training data for the bias nodes
     n = data.shape[0]
     ones = [1]*n
-    print ("FLAG")
-    print (data.shape)
-    print (w1.shape)
+    #print ("FLAG")
+    #print (data.shape)
+    #print (w1.shape)
 
     #take data and apply w1 to it
     w1concat = np.c_[data, ones]
@@ -309,10 +305,10 @@ def nnPredict(w1, w2, data):
     #apply sigmoid
     postsigw1 = sigmoid(presigw1)
 
-    ones = [1]*postsigw1.shape[0]
+    #ones = [1]*postsigw1.shape[0]
 
     #take data and apply w2 to it
-    w2concat = np.c_[presigw1,ones]
+    w2concat = np.c_[postsigw1,ones]
     presigw2 = w2concat.dot(np.transpose(w2))
 
     #apply sigmoid
