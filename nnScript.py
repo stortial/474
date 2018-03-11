@@ -2,7 +2,8 @@ import numpy as np
 from scipy.optimize import minimize
 from scipy.io import loadmat
 from math import sqrt
-
+import time
+import pickle
 
 def initializeWeights(n_in, n_out):
     """
@@ -325,6 +326,7 @@ def nnPredict(w1, w2, data):
     return labels
 
 """**************Neural Network Script Starts here********************************"""
+start_time = time.time()
 
 train_data, train_label, validation_data, validation_label, test_data, test_label = preprocess()
 
@@ -385,3 +387,9 @@ predicted_label = nnPredict(w1, w2, test_data)
 # find the accuracy on Validation Dataset
 
 print('\n Test set Accuracy:' + str(100 * np.mean((predicted_label == test_label).astype(float))) + '%')
+
+
+
+
+
+print("\n --- %s seconds ---" % (time.time()-start_time))
