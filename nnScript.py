@@ -2,7 +2,8 @@ import numpy as np
 from scipy.optimize import minimize
 from scipy.io import loadmat
 from math import sqrt
-
+import time
+import pickle
 
 def initializeWeights(n_in, n_out):
     """
@@ -147,7 +148,6 @@ def preprocess():
 
     return train_data, train_label, validation_data, validation_label, test_data, test_label
 
-
 def nnObjFunction(params, *args):
     """% nnObjFunction computes the value of objective function (negative log
     %   likelihood error function with regularization) given the parameters
@@ -269,7 +269,7 @@ def nnObjFunction(params, *args):
 
     w1Sum = w1.sum()
     w2Sum = w2.sum()
-    obj_val = JW12 + lambdaval/(2*n) * (w1Sum**2 + w2Sum**2)
+    obj_val = JW12 + (lambdaval/(2*n)) * (w1Sum**2 + w2Sum**2)
 
 
     return (obj_val, obj_grad)
@@ -325,7 +325,7 @@ def nnPredict(w1, w2, data):
     return labels
 
 """**************Neural Network Script Starts here********************************"""
-
+start_time = time.time()
 train_data, train_label, validation_data, validation_label, test_data, test_label = preprocess()
 
 #  Train Neural Network
@@ -385,3 +385,11 @@ predicted_label = nnPredict(w1, w2, test_data)
 # find the accuracy on Validation Dataset
 
 print('\n Test set Accuracy:' + str(100 * np.mean((predicted_label == test_label).astype(float))) + '%')
+
+#with open('params.pickle', 'wb') as f_parameter:
+#    pickle.dump([string, list_number, animal_dictionary], f_parameter)
+
+
+
+
+print("\n --- %s seconds ---" % (time.time()-start_time))
