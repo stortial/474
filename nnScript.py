@@ -267,9 +267,9 @@ def nnObjFunction(params, *args):
     JW12Sum = np.sum((truth_label * np.log(afterTest)) + ((1 - truth_label) * np.log(1-afterTest)))
     JW12 = (-1/n) * JW12Sum
 
-    w1Sum = w1.sum()
-    w2Sum = w2.sum()
-    obj_val = JW12 + lambdaval/(2*n) * (w1Sum**2 + w2Sum**2)
+    w1Sum = (w1**2).sum()
+    w2Sum = (w2**2).sum()
+    obj_val = JW12 + lambdaval/(2*n) * (w1Sum + w2Sum)
 
 
     return (obj_val, obj_grad)
@@ -347,7 +347,7 @@ initial_w2 = initializeWeights(n_hidden, n_class)
 initialWeights = np.concatenate((initial_w1.flatten(), initial_w2.flatten()), 0)
 
 # set the regularization hyper-parameter
-lambdaval = 0
+lambdaval = 10
 
 args = (n_input, n_hidden, n_class, train_data, train_label, lambdaval)
 
