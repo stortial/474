@@ -2,11 +2,7 @@ import numpy as np
 from scipy.optimize import minimize
 from scipy.io import loadmat
 from math import sqrt
-import time
 import pickle
-
-
-pickleData = {}
 
 
 def initializeWeights(n_in, n_out):
@@ -32,8 +28,6 @@ def sigmoid(z):
 
     return  1/(1+np.exp(-z))
 
-def sigmoidPrime(z):
-    return (np.exp(-z)/(1+np.exp(-z))**2)
 
 def preprocess():
     """ Input:
@@ -62,41 +56,23 @@ def preprocess():
      - normalize the data to [0, 1]
      - divide the original data set to training, validation and testing set"""
 
-    mat = loadmat('mnist_all.mat') #loads the MAT object as a Dictionary
-    n_valid = 5000
-    train_data = np.concatenate((mat['train0'], mat['train1'],
-                                 mat['train2'], mat['train3'],
-                                 mat['train4'], mat['train5'],
-                                 mat['train6'], mat['train7'],
-                                 mat['train8'], mat['train9']), 0)
-    train_label = np.concatenate((np.ones((mat['train0'].shape[0], 1), dtype='uint8'),
-                                  2 * np.ones((mat['train1'].shape[0], 1), dtype='uint8'),
-                                  3 * np.ones((mat['train2'].shape[0], 1), dtype='uint8'),
-                                  4 * np.ones((mat['train3'].shape[0], 1), dtype='uint8'),
-                                  5 * np.ones((mat['train4'].shape[0], 1), dtype='uint8'),
-                                  6 * np.ones((mat['train5'].shape[0], 1), dtype='uint8'),
-                                  7 * np.ones((mat['train6'].shape[0], 1), dtype='uint8'),
-                                  8 * np.ones((mat['train7'].shape[0], 1), dtype='uint8'),
-                                  9 * np.ones((mat['train8'].shape[0], 1), dtype='uint8'),
-                                  10 * np.ones((mat['train9'].shape[0], 1), dtype='uint8')), 0)
-    test_label = np.concatenate((np.ones((mat['test0'].shape[0], 1), dtype='uint8'),
-                                 2 * np.ones((mat['test1'].shape[0], 1), dtype='uint8'),
-                                 3 * np.ones((mat['test2'].shape[0], 1), dtype='uint8'),
-                                 4 * np.ones((mat['test3'].shape[0], 1), dtype='uint8'),
-                                 5 * np.ones((mat['test4'].shape[0], 1), dtype='uint8'),
-                                 6 * np.ones((mat['test5'].shape[0], 1), dtype='uint8'),
-                                 7 * np.ones((mat['test6'].shape[0], 1), dtype='uint8'),
-                                 8 * np.ones((mat['test7'].shape[0], 1), dtype='uint8'),
-                                 9 * np.ones((mat['test8'].shape[0], 1), dtype='uint8'),
-                                 10 * np.ones((mat['test9'].shape[0], 1), dtype='uint8')), 0)
-    test_data = np.concatenate((mat['test0'], mat['test1'],
-                                mat['test2'], mat['test3'],
-                                mat['test4'], mat['test5'],
-                                mat['test6'], mat['test7'],
-                                mat['test8'], mat['test9']), 0)
+    # Preparing the data set
+    with open('AI_quick_draw.pickle', 'rb') as open_ai_quick:
+        train_data = pickle.load(open_ai_quick)
+        train_label = pickle.load(open_ai_quick)
+        test_data = pickle.load(open_ai_quick)
+        test_label = pickle.load(open_ai_quick)
 
 
-   # remove features that have same value for all points in the training data
+    # remove features that have same value for all points in the training data
+    # convert data to double
+    # normalize data to [0,1]
+
+    # Split train_data and train_label into train_data, validation_data and train_label, validation_label
+    # replace the next two lines
+    validation_data = np.array([])
+    validation_label = np.array([])
+
     same = [True] * 784
     #print (test_data.shape)
     #print (train_data.shape)
@@ -119,14 +95,6 @@ def preprocess():
         if same[n]:
             test_data = np.delete(test_data,n,1)
         n += 1
-
-    # Get used indicies for pickle
-    selected_features = []
-    for x in range(0,len(same)-1):
-        if not same[x]:
-            selected_features.append(x)
-    pickleData['selected_features'] = selected_features
-
 
     # convert data to double
     train_data = np.double(train_data)
@@ -156,9 +124,11 @@ def preprocess():
     train_data = train_data[r[0:training],:]
     train_label = train_label[r[0:training],:]
 
+
     print("preprocess done!")
 
     return train_data, train_label, validation_data, validation_label, test_data, test_label
+
 
 def nnObjFunction(params, *args):
     """% nnObjFunction computes the value of objective function (negative log
@@ -204,10 +174,7 @@ def nnObjFunction(params, *args):
     w2 = params[(n_hidden * (n_input + 1)):].reshape((n_class, (n_hidden + 1)))
     obj_val = 0
 
-    obj_grad = np.array([])
-
     # Your code here
-
     #add a column of ones to training data for the bias nodes
     #print (w1.shape)
     #print (w2.shape)
@@ -283,8 +250,6 @@ def nnObjFunction(params, *args):
     w2Sum = (w2**2).sum()
     obj_val = JW12 + lambdaval/(2*n) * (w1Sum + w2Sum)
 
-
-
     return (obj_val, obj_grad)
 
 
@@ -304,6 +269,9 @@ def nnPredict(w1, w2, data):
 
     % Output:
     % label: a column vector of predicted labels"""
+
+    labels = np.array([])
+    # Your code here
     #add a column of ones to training data for the bias nodes
     n = data.shape[0]
     ones = [1]*n
@@ -335,10 +303,12 @@ def nnPredict(w1, w2, data):
 
     #labels = np.amax(test, axis = 0)
     #print (labels)
+
+
     return labels
 
+
 """**************Neural Network Script Starts here********************************"""
-start_time = time.time()
 
 train_data, train_label, validation_data, validation_label, test_data, test_label = preprocess()
 
@@ -348,7 +318,7 @@ train_data, train_label, validation_data, validation_label, test_data, test_labe
 n_input = train_data.shape[1]
 
 # set the number of nodes in hidden unit (not including bias unit)
-n_hidden = 20
+n_hidden = 50
 
 # set the number of nodes in output unit
 n_class = 10
@@ -361,7 +331,7 @@ initial_w2 = initializeWeights(n_hidden, n_class)
 initialWeights = np.concatenate((initial_w1.flatten(), initial_w2.flatten()), 0)
 
 # set the regularization hyper-parameter
-lambdaval = 10
+lambdaval = 0
 
 args = (n_input, n_hidden, n_class, train_data, train_label, lambdaval)
 
@@ -384,13 +354,6 @@ w2 = nn_params.x[(n_hidden * (n_input + 1)):].reshape((n_class, (n_hidden + 1)))
 
 predicted_label = nnPredict(w1, w2, train_data)
 
-
-pickleData['w1'] = w1
-pickleData['w2'] = w2
-
-pickleData['n_hidden'] = n_hidden
-pickleData['lambdaval'] = lambdaval
-
 # find the accuracy on Training Dataset
 
 print('\n Training set Accuracy:' + str(100 * np.mean((predicted_label == train_label).astype(float))) + '%')
@@ -406,9 +369,3 @@ predicted_label = nnPredict(w1, w2, test_data)
 # find the accuracy on Validation Dataset
 
 print('\n Test set Accuracy:' + str(100 * np.mean((predicted_label == test_label).astype(float))) + '%')
-
-
-pickle.dump( pickleData, open( "params.pickle", "wb" ) )
-
-
-print("\n --- %s seconds ---" % (time.time()-start_time))
