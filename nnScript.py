@@ -58,7 +58,7 @@ def preprocess():
      - normalize the data to [0, 1]
      - divide the original data set to training, validation and testing set"""
 
-    mat = loadmat('mnist_sample.mat') #loads the MAT object as a Dictionary
+    mat = loadmat('mnist_all.mat') #loads the MAT object as a Dictionary
     n_valid = 5000
     train_data = np.concatenate((mat['train0'], mat['train1'],
                                  mat['train2'], mat['train3'],

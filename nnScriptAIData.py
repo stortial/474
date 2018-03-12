@@ -72,6 +72,57 @@ def preprocess():
     validation_data = np.array([])
     validation_label = np.array([])
 
+    same = [True] * 784
+    #print (test_data.shape)
+    #print (train_data.shape)
+
+
+    for j in range(len(train_data)-1):
+        for x in range(0, len(train_data[0])-1):
+            if train_data[j].item(x) != train_data[j+1].item(x):
+                same[x] = False
+    # remove common features
+    n = 0
+    while n < (len(train_data[0])-1):
+        if same[n]:
+            train_data = np.delete(train_data,n,1)
+        n += 1
+
+    # remove common features
+    n = 0
+    while n < (len(test_data[0])-1):
+        if same[n]:
+            test_data = np.delete(test_data,n,1)
+        n += 1
+
+    # convert data to double
+    train_data = np.double(train_data)
+    test_data = np.double(test_data)
+    # normalize data to [0,1]
+    train_data = train_data / 255
+    test_data = test_data / 255
+
+    # Split train_data and train_label into train_data, validation_data and train_label, validation_label
+    # replace the next two lines
+    r = np.random.permutation(range(0, train_data.shape[0]))
+    size = len(r)
+
+    #percent of train data to be split
+    tr = .8
+    va = 1-tr
+
+    training = int(size*tr)
+    val = int(size*va)
+
+    validation_data = np.array([])
+    validation_label = np.array([])
+
+    validation_data = train_data[r[val:],:]
+    validation_label = train_label[r[val:],:]
+
+    train_data = train_data[r[0:training],:]
+    train_label = train_label[r[0:training],:]
+
 
     print "preprocess done!"
 
@@ -123,11 +174,85 @@ def nnObjFunction(params, *args):
     obj_val = 0
 
     # Your code here
-    #
-    #
-    #
-    #
-    #
+    #add a column of ones to training data for the bias nodes
+    #print (w1.shape)
+    #print (w2.shape)
+    #print ("ADAM")
+
+    n = training_data.shape[0]
+
+    ones = [1]*n
+
+    #take data and apply w1 to it
+    testInitial = np.c_[training_data, ones]
+    test = testInitial.dot(np.transpose(w1))
+
+    #apply sigmoid
+    Oj = sigmoid(test)
+
+    #take data and apply w2 to it
+    Ojconcat= Oj
+   # print(OjWeight.shape[0],OjWeight.shape[1])
+    Ojconcat = np.c_[Ojconcat,ones]
+   # print(OjWeight.shape[0],OjWeight.shape[1])
+    OjWeight = Ojconcat.dot(np.transpose(w2))
+    #apply sigmoid
+    afterTest = sigmoid(OjWeight)
+    #np.set_printoptions(threshold=np.nan)
+    #start gradient for w2
+    truth_label = np.zeros((afterTest.shape[0], afterTest.shape[1]))
+
+    #determine the error of the weights associated with the output layer
+    for x in range(0,n):
+        truth_label[x, int(training_label[x])-1] = 1
+
+    # deltaL = ol - yl
+    deltaL =  (truth_label - afterTest)
+
+    # (9)
+    Jw2 = -(np.transpose(deltaL).dot(Ojconcat))
+
+    #get the lam value to go inside 16
+    lam2 = lambdaval*w2
+
+    #grad_w2 based on 16
+    grad_w2 = (np.add(lam2,Jw2))/n
+
+    #test = np.c_[test,ones]
+    adam = deltaL.dot(w2)
+
+    #the front of function 12
+    front = -(1-Ojconcat)*Ojconcat*adam
+
+    temp = front
+    temp = np.transpose(temp)[0:n_hidden]
+    temp = np.transpose(temp)
+
+    #calculate function 10
+    Jw1 = np.transpose(temp).dot(testInitial)
+
+    #get the lam value to go inside 17
+    lam1 = lambdaval*w1
+
+    #grad_w1 based on 17
+    grad_w1 = (np.add(lam1,Jw1))/n
+
+
+    # Make sure you reshape the gradient matrices to a 1D array. for instance if your gradient matrices are grad_w1 and grad_w2
+    # you would use code similar to the one below to create a flat array
+    obj_grad = np.concatenate((grad_w1.flatten(), grad_w2.flatten()),0)
+
+    JW12Sum = np.sum((truth_label * np.log(afterTest)) + ((1 - truth_label) * np.log(1-afterTest)))
+    JW12 = (-1/n) * JW12Sum
+
+    w1Sum = (w1**2).sum()
+    w2Sum = (w2**2).sum()
+    obj_val = JW12 + lambdaval/(2*n) * (w1Sum + w2Sum)
+
+
+
+
+
 
 
 
@@ -158,6 +283,38 @@ def nnPredict(w1, w2, data):
 
     labels = np.array([])
     # Your code here
+    #add a column of ones to training data for the bias nodes
+    n = data.shape[0]
+    ones = [1]*n
+    #print ("FLAG")
+    #print (data.shape)
+    #print (w1.shape)
+
+    #take data and apply w1 to it
+    w1concat = np.c_[data, ones]
+    presigw1 = w1concat.dot(np.transpose(w1))
+
+    #apply sigmoid
+    postsigw1 = sigmoid(presigw1)
+
+    #ones = [1]*postsigw1.shape[0]
+
+    #take data and apply w2 to it
+    w2concat = np.c_[postsigw1,ones]
+    presigw2 = w2concat.dot(np.transpose(w2))
+
+    #apply sigmoid
+    postsigw2 = sigmoid(presigw2)
+
+    #put lables on each function
+    labels = np.empty([data.shape[0], 1])
+
+    for index in range(0,postsigw2.shape[0]):
+        labels[index] = np.argmax(postsigw2[index])+1
+
+    #labels = np.amax(test, axis = 0)
+    #print (labels)
+
 
     return labels
 
