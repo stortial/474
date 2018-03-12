@@ -2,6 +2,7 @@ import numpy as np
 from scipy.optimize import minimize
 from scipy.io import loadmat
 from math import sqrt
+import pickle
 
 
 def initializeWeights(n_in, n_out):
@@ -124,7 +125,7 @@ def preprocess():
     train_label = train_label[r[0:training],:]
 
 
-    print "preprocess done!"
+    print("preprocess done!")
 
     return train_data, train_label, validation_data, validation_label, test_data, test_label
 
@@ -248,18 +249,6 @@ def nnObjFunction(params, *args):
     w1Sum = (w1**2).sum()
     w2Sum = (w2**2).sum()
     obj_val = JW12 + lambdaval/(2*n) * (w1Sum + w2Sum)
-
-
-
-
-
-
-
-
-    # Make sure you reshape the gradient matrices to a 1D array. for instance if your gradient matrices are grad_w1 and grad_w2
-    # you would use code similar to the one below to create a flat array
-    # obj_grad = np.concatenate((grad_w1.flatten(), grad_w2.flatten()),0)
-    obj_grad = np.array([])
 
     return (obj_val, obj_grad)
 
