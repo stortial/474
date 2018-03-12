@@ -148,7 +148,6 @@ def preprocess():
 
     return train_data, train_label, validation_data, validation_label, test_data, test_label
 
-
 def nnObjFunction(params, *args):
     """% nnObjFunction computes the value of objective function (negative log
     %   likelihood error function with regularization) given the parameters
@@ -271,6 +270,7 @@ def nnObjFunction(params, *args):
     w1Sum = (w1**2).sum()
     w2Sum = (w2**2).sum()
     obj_val = JW12 + lambdaval/(2*n) * (w1Sum + w2Sum)
+
 
 
     return (obj_val, obj_grad)
