@@ -5,6 +5,10 @@ from math import sqrt
 import time
 import pickle
 
+
+pickleData = {}
+
+
 def initializeWeights(n_in, n_out):
     """
     # initializeWeights return the random weights for Neural Network given the
@@ -116,6 +120,14 @@ def preprocess():
             test_data = np.delete(test_data,n,1)
         n += 1
 
+    # Get used indicies for pickle
+    selected_features = []
+    for x in range(0,len(same)-1):
+        if not same[x]:
+            selected_features.append(x)
+    pickleData['selected_features'] = selected_features
+
+
     # convert data to double
     train_data = np.double(train_data)
     test_data = np.double(test_data)
@@ -191,6 +203,9 @@ def nnObjFunction(params, *args):
     w1 = params[0:n_hidden * (n_input + 1)].reshape((n_hidden, (n_input + 1)))
     w2 = params[(n_hidden * (n_input + 1)):].reshape((n_class, (n_hidden + 1)))
     obj_val = 0
+
+    pickleData['w1'] = w1
+    pickleData['w2'] = w2
 
     obj_grad = np.array([])
 
@@ -372,6 +387,9 @@ w2 = nn_params.x[(n_hidden * (n_input + 1)):].reshape((n_class, (n_hidden + 1)))
 
 predicted_label = nnPredict(w1, w2, train_data)
 
+pickleData['n_hidden'] = n_hidden
+pickleData['lambdaval'] = lambdaval
+
 # find the accuracy on Training Dataset
 
 print('\n Training set Accuracy:' + str(100 * np.mean((predicted_label == train_label).astype(float))) + '%')
@@ -389,7 +407,7 @@ predicted_label = nnPredict(w1, w2, test_data)
 print('\n Test set Accuracy:' + str(100 * np.mean((predicted_label == test_label).astype(float))) + '%')
 
 
-
+pickle.dump( pickleData, open( "params.pickle", "wb" ) )
 
 
 print("\n --- %s seconds ---" % (time.time()-start_time))
