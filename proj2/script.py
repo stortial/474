@@ -41,7 +41,68 @@ def qdaLearn(X,y):
     # Inputs
     # X - a N x d matrix with each row corresponding to a training example
     # y - a N x 1 column vector indicating the labels for each training example
-    #
+
+
+    d = X.shape[1]
+
+    numK = []
+    #find k
+    for x in range(y.shape[0]):
+        if int(y[x]) not in numK:
+            numK.append(int(y[x]))
+
+    k = len(numK)
+
+    # Pre build the matricies
+    Xc = np.ones(X.shape)
+    means = np.zeros((k,d))
+    total = np.zeros((k,1))
+
+    #find mean
+    for index in range(y.shape[0]):
+        #increment totals at position
+        total[int(y[index])-1]+=1
+        #increment for each d
+        for dIter in range(d):
+            means[int(y[index])-1][dIter] += X[index][dIter]
+
+
+    #divide by d to find the means
+    for row in range(k):
+        for column in range(d):
+            means[row][column] = means[row][column]/total[row]
+
+
+    #covariance--------------------------
+
+    covmats = []
+
+    classes = []
+
+    #initialize matricies
+    #these are just to split up the data so we can call bens thing to get covariance
+
+    for x in range(k):
+        classes.append(np.zeros((1,d)))
+
+    for row in range(y.shape[0]):
+        classes[int(y[row])-1] = np.vstack([classes[int(y[row])-1],X[row]])
+
+    for i in range(k):
+        classes[i] = classes[i][1:]
+
+
+    for index in range(k):
+        #prebuld the matrix to help with covariance
+        Xc = np.ones(classes[index].shape)
+
+        #find Xc, an intermediate term for finding covmat
+        for cols in range(classes[index].shape[1]):
+            temp = classes[index][:,cols]
+            colAvg = np.average(temp)
+            Xc[:,cols] = temp - colAvg
+        covmats.append((1/classes[index].shape[0])*(Xc.transpose().dot(Xc)))
+
     # Outputs
     # means - A k x d matrix containing learnt means for each of the k classes
     # covmats - A list of k d x d learnt covariance matrices for each of the k classes
