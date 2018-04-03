@@ -98,7 +98,6 @@ def qdaLearn(X,y):
     covmats = []
 
     classes = []
-    print(y)
 
     #initialize matricies
     #these are just to split up the data so we can call bens thing to get covariance
@@ -112,15 +111,17 @@ def qdaLearn(X,y):
     for i in range(k):
         classes[i] = classes[i][1:]
 
-    #bens thing
-    for index in range(y.shape[0]):
-        #increment totals at position
 
-        #increment for each d
-        for dIter in range(d):
-            means[int(y[index])-1][dIter] += X[index][dIter]
+    for index in range(k):
+        #prebuld the matrix to help with covariance
+        Xc = np.ones(classes[index].shape)
 
-
+        #find Xc, an intermediate term for finding covmat
+        for cols in range(classes[index].shape[1]):
+            temp = classes[index][:,cols]
+            colAvg = np.average(temp)
+            Xc[:,cols] = temp - colAvg
+        covmats.append((1/classes[index].shape[0])*(Xc.transpose().dot(Xc)))
 
     # Outputs
     # means - A k x d matrix containing learnt means for each of the k classes
