@@ -17,23 +17,44 @@ def ldaLearn(X,y):
     # means - A k x d matrix containing learnt means for each of the k classes
     # covmat - A single d x d learnt covariance matrix
 
-    # print(X)
-    # print(y)
+    d = X.shape[1]
 
-    # Pre build the matricies
-    means = np.ones(X.shape[1])
+    numK = []
+    #find k
+    for x in range(y.shape[0]):
+        if int(y[x]) not in numK:
+            numK.append(int(y[x]))
+
+    k = len(numK)
+
+    # Pre build the  for means
+    means = np.zeros((k,d))
+    total = np.zeros((k,1))
+
+    #find mean
+    for index in range(y.shape[0]):
+        #increment totals at position
+        total[int(y[index])-1]+=1
+        #increment for each d
+        for dIter in range(d):
+            means[int(y[index])-1][dIter] += X[index][dIter]
+
+
+    #divide by d to find the means
+    for row in range(k):
+        for column in range(d):
+            means[row][column] = means[row][column]/total[row]
+
+    #prebuld the matrix to help with covariance
     Xc = np.ones(X.shape)
 
-    # Find means, the average values of each column of X
-    # Then, find Xc, an intermediate term for finding covmat
+    #find Xc, an intermediate term for finding covmat
     for cols in range(X.shape[1]):
         temp = X[:,cols]
-        print(temp.shape)
         colAvg = np.average(temp)
         Xc[:,cols] = temp - colAvg
-        means[cols] = colAvg
+
     covmat = (1/X.shape[0])*(Xc.transpose().dot(Xc))
-    print(covmat)
 
     return means,covmat
 
@@ -41,7 +62,66 @@ def qdaLearn(X,y):
     # Inputs
     # X - a N x d matrix with each row corresponding to a training example
     # y - a N x 1 column vector indicating the labels for each training example
-    #
+
+    d = X.shape[1]
+
+    numK = []
+    #find k
+    for x in range(y.shape[0]):
+        if int(y[x]) not in numK:
+            numK.append(int(y[x]))
+
+    k = len(numK)
+
+    # Pre build the matricies
+    Xc = np.ones(X.shape)
+    means = np.zeros((k,d))
+    total = np.zeros((k,1))
+
+    #find mean
+    for index in range(y.shape[0]):
+        #increment totals at position
+        total[int(y[index])-1]+=1
+        #increment for each d
+        for dIter in range(d):
+            means[int(y[index])-1][dIter] += X[index][dIter]
+
+
+    #divide by d to find the means
+    for row in range(k):
+        for column in range(d):
+            means[row][column] = means[row][column]/total[row]
+
+
+    #covariance--------------------------
+
+    covmats = []
+
+    classes = []
+    print(y)
+
+    #initialize matricies
+    #these are just to split up the data so we can call bens thing to get covariance
+
+    for x in range(k):
+        classes.append(np.zeros((1,d)))
+
+    for row in range(y.shape[0]):
+        classes[int(y[row])-1] = np.vstack([classes[int(y[row])-1],X[row]])
+
+    for i in range(k):
+        classes[i] = classes[i][1:]
+
+    #bens thing
+    for index in range(y.shape[0]):
+        #increment totals at position
+
+        #increment for each d
+        for dIter in range(d):
+            means[int(y[index])-1][dIter] += X[index][dIter]
+
+
+
     # Outputs
     # means - A k x d matrix containing learnt means for each of the k classes
     # covmats - A list of k d x d learnt covariance matrices for each of the k classes
@@ -135,11 +215,11 @@ else:
 
 # LDA
 means,covmat = ldaLearn(X,y)
-ldaacc,ldares = ldaTest(means,covmat,Xtest,ytest)
-print('LDA Accuracy = '+str(ldaacc))
+#ldaacc,ldares = ldaTest(means,covmat,Xtest,ytest)
+#print('LDA Accuracy = '+str(ldaacc))
 # QDA
 means,covmats = qdaLearn(X,y)
-qdaacc,qdares = qdaTest(means,covmats,Xtest,ytest)
+#qdaacc,qdares = qdaTest(means,covmats,Xtest,ytest)
 print('QDA Accuracy = '+str(qdaacc))
 
 # plotting boundaries
