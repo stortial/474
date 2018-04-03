@@ -149,6 +149,9 @@ def ldaTest(means,covmat,Xtest,ytest):
     # ypred - N x 1 column vector indicating the predicted labels
 
     # Matrix of likelihoods of eatch feature for each label
+    np.linalg.det(covmat)
+
+
     likelihood = np.square(Xtest - means)
     ypred = np.vectorize(ypredHelper)
     print(ypred.shape)
@@ -179,8 +182,10 @@ def learnOLERegression(X,y):
     # Output:
     # w = d x 1
 
-    #inverse = np.linalg
-    #w = (np.transpose(x)*x)
+    s = np.dot(np.transpose(X),X)
+
+    inverse = np.linalg.inv(s)
+    w = np.dot(inverse,np.dot(np.transpose(X),y))
     # IMPLEMENT THIS METHOD
     return w
 
@@ -192,11 +197,15 @@ def learnRidgeRegression(X,y,lambd):
     # Output:
     # w = d x 1
 
+    D = X.shape[0]
+
+    left = np.linalg.inv(D*lambd*np.identity(X.shape[1]) + np.dot(np.transpose(X),X))
+    right = np.dot(np.transpose(X),y)
+    w = np.dot(left,right)
+
     # IMPLEMENT THIS METHOD
     return w
 
-#please note this method may be completly wrong
-#well atleast the for loop
 def testOLERegression(w,Xtest,ytest):
     # Inputs:
     # w = d x 1
@@ -204,16 +213,13 @@ def testOLERegression(w,Xtest,ytest):
     # ytest = X x 1
     # Output:
     # mse
-    """
+
     N = Xtest.shape[0]
 
-    total = 0
-
-    for i in range(N):
-        total += (ytest[i]-np.transpose(w)*Xtest)**2
+    total = np.sum(np.square(np.transpose(ytest-np.dot(Xtest,w))))
 
     mse = total/N
-    """
+
     # IMPLEMENT THIS METHOD
     return mse
 
@@ -244,7 +250,7 @@ if sys.version_info.major == 2:
     X,y,Xtest,ytest = pickle.load(open('sample.pickle','rb'))
 else:
     X,y,Xtest,ytest = pickle.load(open('sample.pickle','rb'),encoding = 'latin1')
-
+"""
 # LDA
 means,covmat = ldaLearn(X,y)
 ldaacc,ldares = ldaTest(means,covmat,Xtest,ytest)
@@ -278,11 +284,13 @@ plt.scatter(Xtest[:,0],Xtest[:,1],c=ytest)
 plt.title('QDA')
 
 plt.show()
+"""
 # Problem 2
 if sys.version_info.major == 2:
     X,y,Xtest,ytest = pickle.load(open('diabetes.pickle','rb'))
 else:
     X,y,Xtest,ytest = pickle.load(open('diabetes.pickle','rb'),encoding = 'latin1')
+    X,y,Xtest,ytest = pickle.load(open('sample.pickle','rb'),encoding = 'latin1')
 
 # add intercept
 X_i = np.concatenate((np.ones((X.shape[0],1)), X), axis=1)
