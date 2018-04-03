@@ -19,9 +19,38 @@ def ldaLearn(X,y):
 
     # print(X)
     # print(y)
+    d = X.shape[1]
+    numK = []
+    #find k
+    for x in range(y.shape[0]):
+        if int(y[x]) not in numK:
+            numK.append(int(y[x]))
+
+    k = len(numK)
 
     # Pre build the matricies
-    means = np.ones(X.shape[1])
+    Xc = np.ones(X.shape)
+    means = np.zeros((k,d))
+    total = np.zeros((k,1))
+
+    #find mean
+    for index in range(y.shape[0]):
+        #increment totals at position
+        total[int(y[index])-1]+=1
+        #increment for each d
+        for dIter in range(d):
+            means[int(y[index])-1][dIter] += X[index][dIter]
+
+
+    #divide by d to find the means
+    for row in range(k):
+        for column in range(d):
+            means[row][column] = means[row][column]/total[row]
+
+
+
+    # Pre build the matricies
+    #means = np.ones(X.shape[1])
     Xc = np.ones(X.shape)
 
     # Find means, the average values of each column of X
@@ -31,9 +60,9 @@ def ldaLearn(X,y):
         print(temp.shape)
         colAvg = np.average(temp)
         Xc[:,cols] = temp - colAvg
-        means[cols] = colAvg
+        #means[cols] = colAvg
     covmat = (1/X.shape[0])*(Xc.transpose().dot(Xc))
-    print(covmat)
+    print(means)
 
     return means,covmat
 
@@ -150,6 +179,8 @@ def learnOLERegression(X,y):
     # Output:
     # w = d x 1
 
+    #inverse = np.linalg
+    #w = (np.transpose(x)*x)
     # IMPLEMENT THIS METHOD
     return w
 
@@ -164,6 +195,8 @@ def learnRidgeRegression(X,y,lambd):
     # IMPLEMENT THIS METHOD
     return w
 
+#please note this method may be completly wrong
+#well atleast the for loop
 def testOLERegression(w,Xtest,ytest):
     # Inputs:
     # w = d x 1
@@ -171,7 +204,16 @@ def testOLERegression(w,Xtest,ytest):
     # ytest = X x 1
     # Output:
     # mse
+    """
+    N = Xtest.shape[0]
 
+    total = 0
+
+    for i in range(N):
+        total += (ytest[i]-np.transpose(w)*Xtest)**2
+
+    mse = total/N
+    """
     # IMPLEMENT THIS METHOD
     return mse
 
