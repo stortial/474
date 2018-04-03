@@ -58,8 +58,17 @@ def ldaTest(means,covmat,Xtest,ytest):
     # acc - A scalar accuracy value
     # ypred - N x 1 column vector indicating the predicted labels
 
-    # IMPLEMENT THIS METHOD
+    # Matrix of likelihoods of eatch feature for each label
+    likelihood = np.square(Xtest - means)
+    ypred = np.vectorize(ypredHelper)
+    print(ypred.shape)
+
+    print(likelihood)
     return acc,ypred
+
+def ypredHelper(a,b):
+    if(a>b): return 1
+    else: return 0
 
 def qdaTest(means,covmats,Xtest,ytest):
     # Inputs
