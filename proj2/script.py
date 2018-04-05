@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import pickle
 import sys
 
+# np.set_printoptions(threshold='nan')
+
 def ldaLearn(X,y):
     # Inputs
     # X - a N x d matrix with each row corresponding to a training example
@@ -31,38 +33,56 @@ def ldaLearn(X,y):
     # Pre build the matricies
     Xc = np.ones(X.shape)
     means = np.zeros((k,d))
-    total = np.zeros((k,1))
+    xSplitByClass = [np.ones(d)] * k
+    xSplitByClass[0] = np.append(xSplitByClass[0], np.ones(d))
 
-    #find mean
-    for index in range(y.shape[0]):
-        #increment totals at position
-        total[int(y[index])-1]+=1
-        #increment for each d
-        for dIter in range(d):
-            means[int(y[index])-1][dIter] += X[index][dIter]
+    print("y is",y)
 
+    # Generate xSplitByClass
+    for i,features in enumerate(y):
+        xSplitByClass[int(y[i])-1] = np.append(xSplitByClass[int(y[i])-1],X[i])
 
-    #divide by d to find the means
-    for row in range(k):
-        for column in range(d):
-            means[row][column] = means[row][column]/total[row]
+    # Set up xSplitByClass
+    for x,features in enumerate(xSplitByClass):
+        xSplitByClass[x] = np.delete(xSplitByClass[x],[0,1,3,4])
+        xSplitByClass[x] = np.reshape(xSplitByClass[x], (d,-1) )
 
-
-
-    # Pre build the matricies
-    #means = np.ones(X.shape[1])
-    Xc = np.ones(X.shape)
-
-    # Find means, the average values of each column of X
-    # Then, find Xc, an intermediate term for finding covmat
+    # calculate means
+    for x,features in enumerate(xSplitByClass):
+        for i,cols in enumerate(features):
+            means[x,i] = features[:,i].mean()
+    #
+    #
+    #
+    # total = np.zeros((k,1))
+    #
+    #
+    # #find mean
+    # for index in range(y.shape[0]):
+    #     #increment totals at position
+    #     total[int(y[index])-1]+=1
+    #     #increment for each d
+    #     for dIter in range(d):
+    #         means[int(y[index])-1][dIter] += X[index][dIter]
+    #
+    #
+    # #divide by d to find the means
+    # for row in range(k):
+    #     for column in range(d):
+    #         means[row][column] = means[row][column]/total[row]
+    #
+    #
+    #
+    # # Pre build the matricies
+    # #means = np.ones(X.shape[1])
+    # Xc = np.ones(X.shape)
+    #
+    # Find Xc, an intermediate term for finding covmat
     for cols in range(X.shape[1]):
         temp = X[:,cols]
-        print(temp.shape)
         colAvg = np.average(temp)
         Xc[:,cols] = temp - colAvg
-        #means[cols] = colAvg
     covmat = (1/X.shape[0])*(Xc.transpose().dot(Xc))
-    print(means)
 
     return means,covmat
 
@@ -151,8 +171,8 @@ def ldaTest(means,covmat,Xtest,ytest):
     # Matrix of likelihoods of eatch feature for each label
     np.linalg.det(covmat)
 
-
-    likelihood = np.square(Xtest - means)
+    print(Xtest.shape,means.shape,covmat.shape)
+    likelihood = (Xtest - means.T)
     ypred = np.vectorize(ypredHelper)
     print(ypred.shape)
 
@@ -250,7 +270,7 @@ if sys.version_info.major == 2:
     X,y,Xtest,ytest = pickle.load(open('sample.pickle','rb'))
 else:
     X,y,Xtest,ytest = pickle.load(open('sample.pickle','rb'),encoding = 'latin1')
-"""
+
 # LDA
 means,covmat = ldaLearn(X,y)
 ldaacc,ldares = ldaTest(means,covmat,Xtest,ytest)
@@ -381,3 +401,4 @@ plt.plot(range(pmax),mses5)
 plt.title('MSE for Test Data')
 plt.legend(('No Regularization','Regularization'))
 plt.show()
+"""
