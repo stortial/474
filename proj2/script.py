@@ -229,6 +229,9 @@ def regressionObjVal(w, X, y, lambd):
     # to w (vector) for the given data X and y and the regularization parameter
     # lambda
 
+
+
+
     # IMPLEMENT THIS METHOD
     return error, error_grad
 
@@ -239,7 +242,14 @@ def mapNonLinear(x,p):
     # Outputs:
     # Xp - (N x (p+1))
 
-    # IMPLEMENT THIS METHOD
+    N = x.shape[0]
+
+    Xp = np.zeros(N,p+1)
+
+    for i in range(N):
+        for j in range(p+1):
+            Xp[i][j] = x[i]**j
+
     return Xp
 
 # Main script
