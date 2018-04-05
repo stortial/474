@@ -19,8 +19,6 @@ def ldaLearn(X,y):
     # means - A k x d matrix containing learnt means for each of the k classes
     # covmat - A single d x d learnt covariance matrix
 
-    # print(X)
-    # print(y)
     d = X.shape[1]
     numK = []
     #find k
@@ -35,8 +33,6 @@ def ldaLearn(X,y):
     means = np.zeros((k,d))
     xSplitByClass = [np.ones(d)] * k
     xSplitByClass[0] = np.append(xSplitByClass[0], np.ones(d))
-
-    print("y is",y)
 
     # Generate xSplitByClass
     for i,features in enumerate(y):
@@ -85,6 +81,7 @@ def ldaLearn(X,y):
     covmat = (1/X.shape[0])*(Xc.transpose().dot(Xc))
 
     return means,covmat
+
 
 def qdaLearn(X,y):
     # Inputs
