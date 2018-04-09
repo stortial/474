@@ -61,7 +61,7 @@ def ldaLearn(X,y):
         colAvg = np.average(temp)
         Xc[:,cols] = temp - colAvg
         #means[cols] = colAvg
-    covmat = (1/X.shape[0])*(Xc.transpose().dot(Xc))
+    covmat = (1/X.shape[0])*(w.transpose(Xc).dot(Xc))
     print(means)
 
     return means,covmat
@@ -130,7 +130,7 @@ def qdaLearn(X,y):
             temp = classes[index][:,cols]
             colAvg = np.average(temp)
             Xc[:,cols] = temp - colAvg
-        covmats.append((1/classes[index].shape[0])*(Xc.transpose().dot(Xc)))
+        covmats.append((1/classes[index].shape[0])*(np.transpose(Xc)).dot(Xc))
 
     # Outputs
     # means - A k x d matrix containing learnt means for each of the k classes
@@ -228,6 +228,16 @@ def regressionObjVal(w, X, y, lambd):
     # compute squared error (scalar) and gradient of squared error with respect
     # to w (vector) for the given data X and y and the regularization parameter
     # lambda
+
+
+    N = X.shape[0]
+
+    preSum = y - np.dot(np.transpose(w),X)
+    postSum = np.sum(np.dot(np.transpose(preSum),preSum))/(2*N)
+    regression = (lambd/2)*(np.dot(np.transpose(w),w))
+    error = postSum+regression
+
+
 
 
 
