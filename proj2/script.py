@@ -229,18 +229,21 @@ def regressionObjVal(w, X, y, lambd):
     # to w (vector) for the given data X and y and the regularization parameter
     # lambda
 
+    #changes y from (252,1) to (252,)
+    y = y.transpose()
+    y = y[0]
+    y.tolist()
 
     N = X.shape[0]
 
-    preSum = y - np.dot(np.transpose(w),X)
+    preSum = y - np.dot(X,w)
     postSum = np.sum(np.dot(np.transpose(preSum),preSum))/(2*N)
     regression = (lambd/2)*(np.dot(np.transpose(w),w))
     error = postSum+regression
 
 
-
-
-
+    print("HI ADAM")
+    print("Error: ", error)
 
     # IMPLEMENT THIS METHOD
     return error, error_grad
@@ -254,7 +257,7 @@ def mapNonLinear(x,p):
 
     N = x.shape[0]
 
-    Xp = np.zeros(N,p+1)
+    Xp = np.zeros((N,p+1))
 
     for i in range(N):
         for j in range(p+1):
@@ -305,12 +308,12 @@ plt.title('QDA')
 
 plt.show()
 """
+
 # Problem 2
 if sys.version_info.major == 2:
     X,y,Xtest,ytest = pickle.load(open('diabetes.pickle','rb'))
 else:
     X,y,Xtest,ytest = pickle.load(open('diabetes.pickle','rb'),encoding = 'latin1')
-    X,y,Xtest,ytest = pickle.load(open('sample.pickle','rb'),encoding = 'latin1')
 
 # add intercept
 X_i = np.concatenate((np.ones((X.shape[0],1)), X), axis=1)
@@ -345,6 +348,7 @@ plt.plot(lambdas,mses3)
 plt.title('MSE for Test Data')
 
 plt.show()
+"""
 # Problem 4
 k = 101
 lambdas = np.linspace(0, 1, num=k)
@@ -374,7 +378,7 @@ plt.plot(lambdas,mses3)
 plt.title('MSE for Test Data')
 plt.legend(['Using scipy.minimize','Direct minimization'])
 plt.show()
-
+"""
 
 # Problem 5
 pmax = 7
