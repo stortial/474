@@ -175,10 +175,12 @@ def ldaTest(means,covmat,Xtest,ytest):
         for u in range(0,means.shape[0]):
             # print(Xtest[xSlice],means[u])
             xu = Xtest[xSlice] - means[u]
-            xuAndCov = covmat.dot(xu).reshape(covmat[2],1)
+            xuAndCov = covmat.dot(xu).reshape(covmat.shape[1],1)
+            xu = xu.reshape(covmat.shape[1],1)
             print(xuAndCov.shape,xu.shape)
-            findMax[u] = xuAndCov.dot(np.transpose(xu))
-            print(findMax[u].shape)
+            findMax[u] = np.transpose(xuAndCov).dot(np.transpose(xu))
+            # findMax[u] = np.transpose(xu).dot(xuAndCov)
+            print("shape",findMax[u].shape)
 
 
 
