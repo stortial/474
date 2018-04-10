@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 import pickle
 import sys
 
+# np.set_printoptions(threshold='nan')
+
 def ldaLearn(X,y):
     # Inputs
     # X - a N x d matrix with each row corresponding to a training example
@@ -17,8 +19,6 @@ def ldaLearn(X,y):
     # means - A k x d matrix containing learnt means for each of the k classes
     # covmat - A single d x d learnt covariance matrix
 
-    # print(X)
-    # print(y)
     d = X.shape[1]
     numK = []
     #find k
@@ -31,40 +31,58 @@ def ldaLearn(X,y):
     # Pre build the matricies
     Xc = np.ones(X.shape)
     means = np.zeros((k,d))
-    total = np.zeros((k,1))
+    xSplitByClass = [np.ones(d)] * k
+    xSplitByClass[0] = np.append(xSplitByClass[0], np.ones(d))
 
-    #find mean
-    for index in range(y.shape[0]):
-        #increment totals at position
-        total[int(y[index])-1]+=1
-        #increment for each d
-        for dIter in range(d):
-            means[int(y[index])-1][dIter] += X[index][dIter]
+    # Generate xSplitByClass
+    for i,features in enumerate(y):
+        xSplitByClass[int(y[i])-1] = np.append(xSplitByClass[int(y[i])-1],X[i])
 
+    # Set up xSplitByClass
+    for x,features in enumerate(xSplitByClass):
+        xSplitByClass[x] = np.delete(xSplitByClass[x],[0,1,3,4])
+        xSplitByClass[x] = np.reshape(xSplitByClass[x], (d,-1) )
 
-    #divide by d to find the means
-    for row in range(k):
-        for column in range(d):
-            means[row][column] = means[row][column]/total[row]
-
-
-
-    # Pre build the matricies
-    #means = np.ones(X.shape[1])
-    Xc = np.ones(X.shape)
-
-    # Find means, the average values of each column of X
-    # Then, find Xc, an intermediate term for finding covmat
+    # calculate means
+    for x,features in enumerate(xSplitByClass):
+        for i,cols in enumerate(features):
+            means[x,i] = features[:,i].mean()
+    #
+    #
+    #
+    # total = np.zeros((k,1))
+    #
+    #
+    # #find mean
+    # for index in range(y.shape[0]):
+    #     #increment totals at position
+    #     total[int(y[index])-1]+=1
+    #     #increment for each d
+    #     for dIter in range(d):
+    #         means[int(y[index])-1][dIter] += X[index][dIter]
+    #
+    #
+    # #divide by d to find the means
+    # for row in range(k):
+    #     for column in range(d):
+    #         means[row][column] = means[row][column]/total[row]
+    #
+    #
+    #
+    # # Pre build the matricies
+    # #means = np.ones(X.shape[1])
+    # Xc = np.ones(X.shape)
+    #
+    # Find Xc, an intermediate term for finding covmat
     for cols in range(X.shape[1]):
         temp = X[:,cols]
-        print(temp.shape)
         colAvg = np.average(temp)
         Xc[:,cols] = temp - colAvg
-        #means[cols] = colAvg
-    covmat = (1/X.shape[0])*(w.transpose(Xc).dot(Xc))
-    print(means)
+    covmat = (1/X.shape[0])*(Xc.transpose().dot(Xc))
+
 
     return means,covmat
+
 
 def qdaLearn(X,y):
     # Inputs
@@ -147,17 +165,34 @@ def ldaTest(means,covmat,Xtest,ytest):
     # Outputs
     # acc - A scalar accuracy value
     # ypred - N x 1 column vector indicating the predicted labels
+    # print(Xtest.shape,means.shape[1],covmat.shape)
+    # for row in range(0,means.shape[0]):
+    #     # xu = means[row,:]
+    #     print(Xtest[row,:])
+    print("covmat size",covmat.shape)
+    for xSlice in range(0,Xtest.shape[0]):
+        # print(xSlice)
+        findMax = np.zeros(means.shape)
+        for u in range(0,means.shape[0]):
+            # print(Xtest[xSlice],means[u])
+            xu = Xtest[xSlice] - means[u]
+            xuAndCov = covmat.dot(xu).reshape(covmat[2],1)
+            print(xuAndCov.shape,xu.shape)
+            findMax[u] = xuAndCov.dot(np.transpose(xu))
+            print(findMax[u].shape)
+
+
 
     # Matrix of likelihoods of eatch feature for each label
-    np.linalg.det(covmat)
-
-
-    likelihood = np.square(Xtest - means)
-    ypred = np.vectorize(ypredHelper)
-    print(ypred.shape)
-
-    print(likelihood)
-    return acc,ypred
+    # np.linalg.det(covmat)
+    #
+    # print(Xtest.shape,means.shape,covmat.shape)
+    # likelihood = (Xtest - means.T)
+    # ypred = np.vectorize(ypredHelper)
+    # print(ypred.shape)
+    #
+    # print(likelihood)
+    # return acc,ypred
 
 def ypredHelper(a,b):
     if(a>b): return 1
@@ -286,7 +321,7 @@ if sys.version_info.major == 2:
     X,y,Xtest,ytest = pickle.load(open('sample.pickle','rb'))
 else:
     X,y,Xtest,ytest = pickle.load(open('sample.pickle','rb'),encoding = 'latin1')
-"""
+
 # LDA
 means,covmat = ldaLearn(X,y)
 ldaacc,ldares = ldaTest(means,covmat,Xtest,ytest)
@@ -340,6 +375,7 @@ mle_i = testOLERegression(w_i,Xtest_i,ytest)
 
 print('MSE without intercept '+str(mle))
 print('MSE with intercept '+str(mle_i))
+
 
 # Problem 3
 k = 101
