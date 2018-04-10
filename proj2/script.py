@@ -164,17 +164,34 @@ def ldaTest(means,covmat,Xtest,ytest):
     # Outputs
     # acc - A scalar accuracy value
     # ypred - N x 1 column vector indicating the predicted labels
+    # print(Xtest.shape,means.shape[1],covmat.shape)
+    # for row in range(0,means.shape[0]):
+    #     # xu = means[row,:]
+    #     print(Xtest[row,:])
+    print("covmat size",covmat.shape)
+    for xSlice in range(0,Xtest.shape[0]):
+        # print(xSlice)
+        findMax = np.zeros(means.shape)
+        for u in range(0,means.shape[0]):
+            # print(Xtest[xSlice],means[u])
+            xu = Xtest[xSlice] - means[u]
+            xuAndCov = covmat.dot(xu).reshape(covmat[2],1)
+            print(xuAndCov.shape,xu.shape)
+            findMax[u] = xuAndCov.dot(np.transpose(xu))
+            print(findMax[u].shape)
+
+
 
     # Matrix of likelihoods of eatch feature for each label
-    np.linalg.det(covmat)
-
-    print(Xtest.shape,means.shape,covmat.shape)
-    likelihood = (Xtest - means.T)
-    ypred = np.vectorize(ypredHelper)
-    print(ypred.shape)
-
-    print(likelihood)
-    return acc,ypred
+    # np.linalg.det(covmat)
+    #
+    # print(Xtest.shape,means.shape,covmat.shape)
+    # likelihood = (Xtest - means.T)
+    # ypred = np.vectorize(ypredHelper)
+    # print(ypred.shape)
+    #
+    # print(likelihood)
+    # return acc,ypred
 
 def ypredHelper(a,b):
     if(a>b): return 1
@@ -261,7 +278,7 @@ def mapNonLinear(x,p):
 
     N = x.shape[0]
 
-    Xp = np.zeros(N,p+1)
+    Xp = np.zeros((N,p+1))
 
     for i in range(N):
         for j in range(p+1):
@@ -317,7 +334,6 @@ if sys.version_info.major == 2:
     X,y,Xtest,ytest = pickle.load(open('diabetes.pickle','rb'))
 else:
     X,y,Xtest,ytest = pickle.load(open('diabetes.pickle','rb'),encoding = 'latin1')
-    X,y,Xtest,ytest = pickle.load(open('sample.pickle','rb'),encoding = 'latin1')
 
 # add intercept
 X_i = np.concatenate((np.ones((X.shape[0],1)), X), axis=1)
@@ -331,6 +347,7 @@ mle_i = testOLERegression(w_i,Xtest_i,ytest)
 
 print('MSE without intercept '+str(mle))
 print('MSE with intercept '+str(mle_i))
+
 
 # Problem 3
 k = 101
@@ -352,6 +369,7 @@ plt.plot(lambdas,mses3)
 plt.title('MSE for Test Data')
 
 plt.show()
+
 # Problem 4
 k = 101
 lambdas = np.linspace(0, 1, num=k)
@@ -382,7 +400,7 @@ plt.title('MSE for Test Data')
 plt.legend(['Using scipy.minimize','Direct minimization'])
 plt.show()
 
-
+"""
 # Problem 5
 pmax = 7
 lambda_opt = 0 # REPLACE THIS WITH lambda_opt estimated from Problem 3
@@ -408,4 +426,3 @@ plt.plot(range(pmax),mses5)
 plt.title('MSE for Test Data')
 plt.legend(('No Regularization','Regularization'))
 plt.show()
-"""
