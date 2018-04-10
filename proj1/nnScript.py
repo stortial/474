@@ -5,6 +5,10 @@ from math import sqrt
 import time
 import pickle
 
+
+pickleData = {}
+
+
 def initializeWeights(n_in, n_out):
     """
     # initializeWeights return the random weights for Neural Network given the
@@ -58,7 +62,7 @@ def preprocess():
      - normalize the data to [0, 1]
      - divide the original data set to training, validation and testing set"""
 
-    mat = loadmat('mnist_sample.mat') #loads the MAT object as a Dictionary
+    mat = loadmat('mnist_all.mat') #loads the MAT object as a Dictionary
     n_valid = 5000
     train_data = np.concatenate((mat['train0'], mat['train1'],
                                  mat['train2'], mat['train3'],
@@ -115,6 +119,14 @@ def preprocess():
         if same[n]:
             test_data = np.delete(test_data,n,1)
         n += 1
+
+    # Get used indicies for pickle
+    selected_features = []
+    for x in range(0,len(same)-1):
+        if not same[x]:
+            selected_features.append(x)
+    pickleData['selected_features'] = selected_features
+
 
     # convert data to double
     train_data = np.double(train_data)
@@ -336,7 +348,7 @@ train_data, train_label, validation_data, validation_label, test_data, test_labe
 n_input = train_data.shape[1]
 
 # set the number of nodes in hidden unit (not including bias unit)
-n_hidden = 50
+n_hidden = 20
 
 # set the number of nodes in output unit
 n_class = 10
@@ -372,6 +384,13 @@ w2 = nn_params.x[(n_hidden * (n_input + 1)):].reshape((n_class, (n_hidden + 1)))
 
 predicted_label = nnPredict(w1, w2, train_data)
 
+
+pickleData['w1'] = w1
+pickleData['w2'] = w2
+
+pickleData['n_hidden'] = n_hidden
+pickleData['lambdaval'] = lambdaval
+
 # find the accuracy on Training Dataset
 
 print('\n Training set Accuracy:' + str(100 * np.mean((predicted_label == train_label).astype(float))) + '%')
@@ -389,7 +408,7 @@ predicted_label = nnPredict(w1, w2, test_data)
 print('\n Test set Accuracy:' + str(100 * np.mean((predicted_label == test_label).astype(float))) + '%')
 
 
-
+pickle.dump( pickleData, open( "params.pickle", "wb" ) )
 
 
 print("\n --- %s seconds ---" % (time.time()-start_time))
