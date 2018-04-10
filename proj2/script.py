@@ -236,11 +236,22 @@ def regressionObjVal(w, X, y, lambd):
 
     N = X.shape[0]
 
+    #calculate squared error
     preSum = y - np.dot(X,w)
     postSum = np.sum(np.dot(np.transpose(preSum),preSum))/(2*N)
     regression = (lambd/2)*(np.dot(np.transpose(w),w))
     error = postSum+regression
 
+
+    #calculate squared error
+    postW = (lambd*w)
+    left = np.dot(np.transpose(w),np.dot(np.transpose(X),X))
+    right = np.dot(np.transpose(X),y)
+
+
+    s = (left-right)/N
+
+    error_grad = s+postW
 
     print("HI ADAM")
     print("Error: ", error)
@@ -348,7 +359,7 @@ plt.plot(lambdas,mses3)
 plt.title('MSE for Test Data')
 
 plt.show()
-"""
+
 # Problem 4
 k = 101
 lambdas = np.linspace(0, 1, num=k)
@@ -378,8 +389,8 @@ plt.plot(lambdas,mses3)
 plt.title('MSE for Test Data')
 plt.legend(['Using scipy.minimize','Direct minimization'])
 plt.show()
-"""
 
+"""
 # Problem 5
 pmax = 7
 lambda_opt = 0 # REPLACE THIS WITH lambda_opt estimated from Problem 3
@@ -405,3 +416,4 @@ plt.plot(range(pmax),mses5)
 plt.title('MSE for Test Data')
 plt.legend(('No Regularization','Regularization'))
 plt.show()
+"""
