@@ -80,8 +80,8 @@ def ldaLearn(X,y):
         Xc[:,cols] = temp - colAvg
     covmat = (1/X.shape[0])*(Xc.transpose().dot(Xc))
 
-
     return means,covmat
+
 
 
 def qdaLearn(X,y):
@@ -165,40 +165,36 @@ def ldaTest(means,covmat,Xtest,ytest):
     # Outputs
     # acc - A scalar accuracy value
     # ypred - N x 1 column vector indicating the predicted labels
-    # print(Xtest.shape,means.shape[1],covmat.shape)
-    # for row in range(0,means.shape[0]):
-    #     # xu = means[row,:]
-    #     print(Xtest[row,:])
-    print("covmat size",covmat.shape)
+
+    ypred = np.ones((Xtest.shape[0],1))
+
+    covmat = np.linalg.inv(covmat)
     for xSlice in range(0,Xtest.shape[0]):
-        # print(xSlice)
-        findMax = np.zeros(means.shape)
+        findMax = np.zeros((means.shape[0],1))
         for u in range(0,means.shape[0]):
-            # print(Xtest[xSlice],means[u])
-            xu = Xtest[xSlice] - means[u]
-            xuAndCov = covmat.dot(xu).reshape(covmat.shape[1],1)
-            xu = xu.reshape(covmat.shape[1],1)
-            print(xuAndCov.shape,xu.shape)
-            findMax[u] = np.transpose(xuAndCov).dot(np.transpose(xu))
-            # findMax[u] = np.transpose(xu).dot(xuAndCov)
-            print("shape",findMax[u].shape)
+            xu = (Xtest[xSlice] - means[u])
+            xuAndCov = covmat.dot(xu)
+            findMax[u] = np.dot(xu.T,xuAndCov)
+        ypred[xSlice] = np.argmax(findMax) + 1
 
 
+    # ypred = ypred.astype(int)
+    print(ypred)
 
-    # Matrix of likelihoods of eatch feature for each label
-    # np.linalg.det(covmat)
-    #
-    # print(Xtest.shape,means.shape,covmat.shape)
-    # likelihood = (Xtest - means.T)
-    # ypred = np.vectorize(ypredHelper)
-    # print(ypred.shape)
-    #
-    # print(likelihood)
-    # return acc,ypred
+    truthLables = np.zeros(ytest.shape)
+    for index in range(0,len(ytest)):
+        print(ytest[index],ypred[index])
+        if ytest[index] == ypred[index]:
+            truthLables[index] = 1
 
-def ypredHelper(a,b):
-    if(a>b): return 1
-    else: return 0
+    print(truthLables)
+
+    acc = np.amax(ypred,ytest)
+
+    # print(ytest)
+    print("means size",means.shape)
+    return acc,ypred
+
 
 def qdaTest(means,covmats,Xtest,ytest):
     # Inputs
