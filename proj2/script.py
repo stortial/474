@@ -207,6 +207,37 @@ def qdaTest(means,covmats,Xtest,ytest):
     # acc - A scalar accuracy value
     # ypred - N x 1 column vector indicating the predicted labels
 
+    ypred = 0
+
+    acc = 0.0
+
+    N = Xtest.shape[0]
+    k = len(covmats)
+    covmat = np.zeros((k))
+    findMax = np.zeros((N,k))
+
+    cov = covmats
+    #get the determinate of each covariance matrix
+    for x in range(len(covmats)):
+        covmat[x] = 1/np.linalg.det(covmats[x])
+
+    for i,x in enumerate(Xtest):
+        for y in range(k):
+            top = (x-means[y])*covmat[y]
+            top = np.dot(np.transpose(top),top)
+            theTop = -.5*(top)
+            exp = np.exp(theTop)
+            prob = covmat[y]*exp
+            findMax[i][y] = prob
+
+    maxes = np.argmax(findMax,axis=1)
+    maxes = np.add(maxes,1)
+
+    for i,x in enumerate(ytest):
+        if x == maxes[i]:
+            acc+=1
+
+    acc = acc/N
     # IMPLEMENT THIS METHOD
     return acc,ypred
 
@@ -250,7 +281,7 @@ def testOLERegression(w,Xtest,ytest):
     # ytest = X x 1
     # Output:
     # mse
-    
+
     N = Xtest.shape[0]
 
     total = np.sum(np.square(np.transpose(ytest-np.dot(Xtest,w))))
@@ -323,9 +354,9 @@ else:
     X,y,Xtest,ytest = pickle.load(open('sample.pickle','rb'),encoding = 'latin1')
 
 # LDA
-means,covmat = ldaLearn(X,y)
-ldaacc,ldares = ldaTest(means,covmat,Xtest,ytest)
-print('LDA Accuracy = '+str(ldaacc))
+#means,covmat = ldaLearn(X,y)
+#ldaacc,ldares = ldaTest(means,covmat,Xtest,ytest)
+#print('LDA Accuracy = '+str(ldaacc))
 # QDA
 means,covmats = qdaLearn(X,y)
 qdaacc,qdares = qdaTest(means,covmats,Xtest,ytest)
@@ -355,7 +386,7 @@ plt.scatter(Xtest[:,0],Xtest[:,1],c=ytest)
 plt.title('QDA')
 
 plt.show()
-"""
+
 
 # Problem 2
 if sys.version_info.major == 2:
