@@ -167,19 +167,17 @@ def ldaTest(means,covmat,Xtest,ytest):
     # ypred - N x 1 column vector indicating the predicted labels
 
     ypred = np.ones((Xtest.shape[0],1))
-
+    print(covmat)
     covmat = np.linalg.inv(covmat)
+    print(covmat)
     for xSlice in range(0,Xtest.shape[0]):
         findMax = np.zeros((means.shape[0],1))
         for u in range(0,means.shape[0]):
             xu = (Xtest[xSlice] - means[u])
             xuAndCov = covmat.dot(xu)
+            print("s1",xuAndCov.shape)
             findMax[u] = np.dot(xu.T,xuAndCov)
         ypred[xSlice] = np.argmax(findMax) + 1
-
-
-    # ypred = ypred.astype(int)
-    print(ypred)
 
     truthLables = np.zeros(ytest.shape)
     for index in range(0,len(ytest)):
@@ -187,9 +185,7 @@ def ldaTest(means,covmat,Xtest,ytest):
         if ytest[index] == ypred[index]:
             truthLables[index] = 1
 
-    print(truthLables)
-
-    acc = np.amax(ypred,ytest)
+    acc = truthLables.sum() / len(truthLables)
 
     # print(ytest)
     print("means size",means.shape)
