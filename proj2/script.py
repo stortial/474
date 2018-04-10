@@ -186,6 +186,7 @@ def learnOLERegression(X,y):
 
     inverse = np.linalg.inv(s)
     w = np.dot(inverse,np.dot(np.transpose(X),y))
+
     # IMPLEMENT THIS METHOD
     return w
 
@@ -197,11 +198,12 @@ def learnRidgeRegression(X,y,lambd):
     # Output:
     # w = d x 1
 
-    D = X.shape[0]
+    N = X.shape[0]
 
-    left = np.linalg.inv(D*lambd*np.identity(X.shape[1]) + np.dot(np.transpose(X),X))
+    left = np.linalg.inv(N*lambd*np.identity(X.shape[1]) + np.dot(np.transpose(X),X))
     right = np.dot(np.transpose(X),y)
     w = np.dot(left,right)
+
 
     # IMPLEMENT THIS METHOD
     return w
@@ -213,7 +215,7 @@ def testOLERegression(w,Xtest,ytest):
     # ytest = X x 1
     # Output:
     # mse
-
+    
     N = Xtest.shape[0]
 
     total = np.sum(np.square(np.transpose(ytest-np.dot(Xtest,w))))
@@ -243,7 +245,7 @@ def regressionObjVal(w, X, y, lambd):
     error = postSum+regression
 
 
-    #calculate squared error
+    #calculate squared error gradient
     postW = (lambd*w)
     left = np.dot(np.transpose(w),np.dot(np.transpose(X),X))
     right = np.dot(np.transpose(X),y)
@@ -390,7 +392,7 @@ plt.title('MSE for Test Data')
 plt.legend(['Using scipy.minimize','Direct minimization'])
 plt.show()
 
-"""
+
 # Problem 5
 pmax = 7
 lambda_opt = 0 # REPLACE THIS WITH lambda_opt estimated from Problem 3
@@ -416,4 +418,3 @@ plt.plot(range(pmax),mses5)
 plt.title('MSE for Test Data')
 plt.legend(('No Regularization','Regularization'))
 plt.show()
-"""
