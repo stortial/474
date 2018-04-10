@@ -80,6 +80,7 @@ def ldaLearn(X,y):
         Xc[:,cols] = temp - colAvg
     covmat = (1/X.shape[0])*(Xc.transpose().dot(Xc))
 
+
     return means,covmat
 
 
@@ -147,7 +148,7 @@ def qdaLearn(X,y):
             temp = classes[index][:,cols]
             colAvg = np.average(temp)
             Xc[:,cols] = temp - colAvg
-        covmats.append((1/classes[index].shape[0])*(Xc.transpose().dot(Xc)))
+        covmats.append((1/classes[index].shape[0])*(np.transpose(Xc)).dot(Xc))
 
     # Outputs
     # means - A k x d matrix containing learnt means for each of the k classes
@@ -263,8 +264,32 @@ def regressionObjVal(w, X, y, lambd):
     # to w (vector) for the given data X and y and the regularization parameter
     # lambda
 
+    #changes y from (252,1) to (252,)
+    y = y.transpose()
+    y = y[0]
+    y.tolist()
+
+    N = X.shape[0]
+
+    #calculate squared error
+    preSum = y - np.dot(X,w)
+    postSum = np.sum(np.dot(np.transpose(preSum),preSum))/(2*N)
+    regression = (lambd/2)*(np.dot(np.transpose(w),w))
+    error = postSum+regression
 
 
+    #calculate squared error
+    postW = (lambd*w)
+    left = np.dot(np.transpose(w),np.dot(np.transpose(X),X))
+    right = np.dot(np.transpose(X),y)
+
+
+    s = (left-right)/N
+
+    error_grad = s+postW
+
+    print("HI ADAM")
+    print("Error: ", error)
 
     # IMPLEMENT THIS METHOD
     return error, error_grad
@@ -329,6 +354,7 @@ plt.title('QDA')
 
 plt.show()
 """
+
 # Problem 2
 if sys.version_info.major == 2:
     X,y,Xtest,ytest = pickle.load(open('diabetes.pickle','rb'))
@@ -426,3 +452,4 @@ plt.plot(range(pmax),mses5)
 plt.title('MSE for Test Data')
 plt.legend(('No Regularization','Regularization'))
 plt.show()
+"""
