@@ -454,4 +454,3 @@ plt.plot(range(pmax),mses5)
 plt.title('MSE for Test Data')
 plt.legend(('No Regularization','Regularization'))
 plt.show()
-"""
