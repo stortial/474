@@ -8,8 +8,6 @@ import matplotlib.pyplot as plt
 import pickle
 import sys
 
-# np.set_printoptions(threshold='nan')
-
 def ldaLearn(X,y):
     # Inputs
     # X - a N x d matrix with each row corresponding to a training example
@@ -20,6 +18,7 @@ def ldaLearn(X,y):
     # covmat - A single d x d learnt covariance matrix
 
     d = X.shape[1]
+
     numK = []
     #find k
     for x in range(y.shape[0]):
@@ -31,57 +30,25 @@ def ldaLearn(X,y):
     # Pre build the matricies
     Xc = np.ones(X.shape)
     means = np.zeros((k,d))
-    xSplitByClass = [np.ones(d)] * k
-    xSplitByClass[0] = np.append(xSplitByClass[0], np.ones(d))
+    total = np.zeros((k,1))
 
-    # Generate xSplitByClass
-    for i,features in enumerate(y):
-        xSplitByClass[int(y[i])-1] = np.append(xSplitByClass[int(y[i])-1],X[i])
+    #find mean
+    for index in range(y.shape[0]):
+        #increment totals at position
+        total[int(y[index])-1]+=1
+        #increment for each d
+        for dIter in range(d):
+            means[int(y[index])-1][dIter] += X[index][dIter]
 
-    # Set up xSplitByClass
-    for x,features in enumerate(xSplitByClass):
-        xSplitByClass[x] = np.delete(xSplitByClass[x],[0,1,3,4])
-        xSplitByClass[x] = np.reshape(xSplitByClass[x], (d,-1) )
 
-    # calculate means
-    for x,features in enumerate(xSplitByClass):
-        for i,cols in enumerate(features):
-            means[x,i] = features[:,i].mean()
-    #
-    #
-    #
-    # total = np.zeros((k,1))
-    #
-    #
-    # #find mean
-    # for index in range(y.shape[0]):
-    #     #increment totals at position
-    #     total[int(y[index])-1]+=1
-    #     #increment for each d
-    #     for dIter in range(d):
-    #         means[int(y[index])-1][dIter] += X[index][dIter]
-    #
-    #
-    # #divide by d to find the means
-    # for row in range(k):
-    #     for column in range(d):
-    #         means[row][column] = means[row][column]/total[row]
-    #
-    #
-    #
-    # # Pre build the matricies
-    # #means = np.ones(X.shape[1])
-    # Xc = np.ones(X.shape)
-    #
-    # Find Xc, an intermediate term for finding covmat
-    for cols in range(X.shape[1]):
-        temp = X[:,cols]
-        colAvg = np.average(temp)
-        Xc[:,cols] = temp - colAvg
-    covmat = (1/X.shape[0])*(Xc.transpose().dot(Xc))
+    #divide by d to find the means
+    for row in range(k):
+        for column in range(d):
+            means[row][column] = means[row][column]/total[row]
+
+    covmat = np.cov(X, rowvar=False)
 
     return means,covmat
-
 
 def qdaLearn(X,y):
     # Inputs
@@ -126,7 +93,6 @@ def qdaLearn(X,y):
     classes = []
 
     #initialize matricies
-    #these are just to split up the data so we can call bens thing to get covariance
 
     for x in range(k):
         classes.append(np.zeros((1,d)))
@@ -164,32 +130,37 @@ def ldaTest(means,covmat,Xtest,ytest):
     # Outputs
     # acc - A scalar accuracy value
     # ypred - N x 1 column vector indicating the predicted labels
+    N = Xtest.shape[0]
 
-    ypred = np.ones((Xtest.shape[0],1))
-    print(covmat)
-    covmat = np.linalg.inv(covmat)
-    print(covmat)
-    for xSlice in range(0,Xtest.shape[0]):
-        findMax = np.zeros((means.shape[0],1))
-        for u in range(0,means.shape[0]):
-            xu = (Xtest[xSlice] - means[u])
-            xuAndCov = covmat.dot(xu)
-            print("s1",xuAndCov.shape)
-            findMax[u] = np.dot(xu.T,xuAndCov)
-        ypred[xSlice] = np.argmax(findMax) + 1
+    ypred = 0
 
-    truthLables = np.zeros(ytest.shape)
-    for index in range(0,len(ytest)):
-        print(ytest[index],ypred[index])
-        if ytest[index] == ypred[index]:
-            truthLables[index] = 1
+    acc = 0.0
 
-    acc = truthLables.sum() / len(truthLables)
+    N = Xtest.shape[0]
+    k = means.shape[0]
+    findMax = np.zeros((N,k))
 
-    # print(ytest)
-    print("means size",means.shape)
-    return acc,ypred
+    covmat = 1/np.linalg.det(np.linalg.inv(covmat))
 
+    for i,x in enumerate(Xtest):
+        for j in range(k):
+            top = x - means[j]
+            top = np.dot(top, np.transpose(top))
+            theTop = -.5*(top*covmat)
+            exp = np.exp(theTop)
+            prob = covmat*exp
+            findMax[i][j] = prob
+
+    maxes = np.argmax(findMax,axis=1)
+    maxes = np.add(maxes,1)
+
+    for i,x in enumerate(ytest):
+        if x == maxes[i]:
+            acc+=1
+
+    acc = acc/N
+
+    return acc,ytest
 
 def qdaTest(means,covmats,Xtest,ytest):
     # Inputs
@@ -225,11 +196,13 @@ def qdaTest(means,covmats,Xtest,ytest):
 
     maxes = np.argmax(findMax,axis=1)
     maxes = np.add(maxes,1)
-
     for i,x in enumerate(ytest):
         if x == maxes[i]:
             acc+=1
 
+    ypred = np.array(maxes)
+    ypred = ypred.reshape(ypred.shape[0],1)
+    print(ypred.shape)
     acc = acc/N
     # IMPLEMENT THIS METHOD
     return acc,ypred
@@ -258,7 +231,7 @@ def learnRidgeRegression(X,y,lambd):
     # lambd = ridge parameter (scalar)
     # Output:
     # w = d x 1
-    
+
     left = np.linalg.inv(lambd*np.identity(X.shape[1]) + np.dot(np.transpose(X),X))
     right = np.dot(np.transpose(X),y)
     w = np.dot(left,right)
@@ -341,7 +314,7 @@ def mapNonLinear(x,p):
     return Xp
 
 # Main script
-"""
+
 # Problem 1
 # load the sample data
 if sys.version_info.major == 2:
@@ -482,3 +455,4 @@ plt.plot(range(pmax),mses5)
 plt.title('MSE for Test Data')
 plt.legend(('No Regularization','Regularization'))
 plt.show()
+"""
