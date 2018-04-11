@@ -83,7 +83,6 @@ def ldaLearn(X,y):
     return means,covmat
 
 
-
 def qdaLearn(X,y):
     # Inputs
     # X - a N x d matrix with each row corresponding to a training example
@@ -201,6 +200,37 @@ def qdaTest(means,covmats,Xtest,ytest):
     # acc - A scalar accuracy value
     # ypred - N x 1 column vector indicating the predicted labels
 
+    ypred = 0
+
+    acc = 0.0
+
+    N = Xtest.shape[0]
+    k = len(covmats)
+    covmat = np.zeros((k))
+    findMax = np.zeros((N,k))
+
+    cov = covmats
+    #get the determinate of each covariance matrix
+    for x in range(len(covmats)):
+        covmat[x] = 1/np.linalg.det(covmats[x])
+
+    for i,x in enumerate(Xtest):
+        for y in range(k):
+            top = (x-means[y])*covmat[y]
+            top = np.dot(np.transpose(top),top)
+            theTop = -.5*(top)
+            exp = np.exp(theTop)
+            prob = covmat[y]*exp
+            findMax[i][y] = prob
+
+    maxes = np.argmax(findMax,axis=1)
+    maxes = np.add(maxes,1)
+
+    for i,x in enumerate(ytest):
+        if x == maxes[i]:
+            acc+=1
+
+    acc = acc/N
     # IMPLEMENT THIS METHOD
     return acc,ypred
 
@@ -211,10 +241,13 @@ def learnOLERegression(X,y):
     # Output:
     # w = d x 1
 
+
+    #formula w = (x^T x)^-1 (x^T Y)
     s = np.dot(np.transpose(X),X)
 
     inverse = np.linalg.inv(s)
     w = np.dot(inverse,np.dot(np.transpose(X),y))
+
     # IMPLEMENT THIS METHOD
     return w
 
@@ -225,12 +258,11 @@ def learnRidgeRegression(X,y,lambd):
     # lambd = ridge parameter (scalar)
     # Output:
     # w = d x 1
-
-    D = X.shape[0]
-
-    left = np.linalg.inv(D*lambd*np.identity(X.shape[1]) + np.dot(np.transpose(X),X))
+    
+    left = np.linalg.inv(lambd*np.identity(X.shape[1]) + np.dot(np.transpose(X),X))
     right = np.dot(np.transpose(X),y)
     w = np.dot(left,right)
+
 
     # IMPLEMENT THIS METHOD
     return w
@@ -243,12 +275,16 @@ def testOLERegression(w,Xtest,ytest):
     # Output:
     # mse
 
+    #total = np.sum(np.square(np.transpose(ytest-np.dot(Xtest,w))))
     N = Xtest.shape[0]
 
-    total = np.sum(np.square(np.transpose(ytest-np.dot(Xtest,w))))
+    total = 0
+    for i,x in enumerate(Xtest):
+        right = np.dot(np.transpose(w),x)
+        j = ytest[i]-right
+        total+= np.dot(np.transpose(j),j)
 
     mse = total/N
-
     # IMPLEMENT THIS METHOD
     return mse
 
@@ -272,7 +308,7 @@ def regressionObjVal(w, X, y, lambd):
     error = postSum+regression
 
 
-    #calculate squared error
+    #calculate squared error gradient
     postW = (lambd*w)
     left = np.dot(np.transpose(w),np.dot(np.transpose(X),X))
     right = np.dot(np.transpose(X),y)
@@ -282,8 +318,7 @@ def regressionObjVal(w, X, y, lambd):
 
     error_grad = s+postW
 
-    print("HI ADAM")
-    print("Error: ", error)
+
 
     # IMPLEMENT THIS METHOD
     return error, error_grad
@@ -306,7 +341,7 @@ def mapNonLinear(x,p):
     return Xp
 
 # Main script
-
+"""
 # Problem 1
 # load the sample data
 if sys.version_info.major == 2:
@@ -347,8 +382,8 @@ plt.scatter(Xtest[:,0],Xtest[:,1],c=ytest)
 plt.title('QDA')
 
 plt.show()
-"""
 
+"""
 # Problem 2
 if sys.version_info.major == 2:
     X,y,Xtest,ytest = pickle.load(open('diabetes.pickle','rb'))
@@ -380,6 +415,7 @@ for lambd in lambdas:
     mses3_train[i] = testOLERegression(w_l,X_i,y)
     mses3[i] = testOLERegression(w_l,Xtest_i,ytest)
     i = i + 1
+print(mses3)
 fig = plt.figure(figsize=[12,6])
 plt.subplot(1, 2, 1)
 plt.plot(lambdas,mses3_train)
@@ -420,7 +456,7 @@ plt.title('MSE for Test Data')
 plt.legend(['Using scipy.minimize','Direct minimization'])
 plt.show()
 
-"""
+
 # Problem 5
 pmax = 7
 lambda_opt = 0 # REPLACE THIS WITH lambda_opt estimated from Problem 3
