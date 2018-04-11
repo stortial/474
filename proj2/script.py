@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import pickle
 import sys
 
+
 def ldaLearn(X,y):
     # Inputs
     # X - a N x d matrix with each row corresponding to a training example
@@ -17,9 +18,8 @@ def ldaLearn(X,y):
     # means - A k x d matrix containing learnt means for each of the k classes
     # covmat - A single d x d learnt covariance matrix
 
-    # print(X)
-    # print(y)
     d = X.shape[1]
+
     numK = []
     #find k
     for x in range(y.shape[0]):
@@ -47,22 +47,7 @@ def ldaLearn(X,y):
         for column in range(d):
             means[row][column] = means[row][column]/total[row]
 
-
-
-    # Pre build the matricies
-    #means = np.ones(X.shape[1])
-    Xc = np.ones(X.shape)
-
-    # Find means, the average values of each column of X
-    # Then, find Xc, an intermediate term for finding covmat
-    for cols in range(X.shape[1]):
-        temp = X[:,cols]
-        print(temp.shape)
-        colAvg = np.average(temp)
-        Xc[:,cols] = temp - colAvg
-        #means[cols] = colAvg
-    covmat = (1/X.shape[0])*(Xc.transpose().dot(Xc))
-    print(means)
+    covmat = np.cov(X, rowvar=False)
 
     return means,covmat
 
@@ -109,7 +94,6 @@ def qdaLearn(X,y):
     classes = []
 
     #initialize matricies
-    #these are just to split up the data so we can call bens thing to get covariance
 
     for x in range(k):
         classes.append(np.zeros((1,d)))
@@ -130,7 +114,7 @@ def qdaLearn(X,y):
             temp = classes[index][:,cols]
             colAvg = np.average(temp)
             Xc[:,cols] = temp - colAvg
-        covmats.append((1/classes[index].shape[0])*(Xc.transpose().dot(Xc)))
+        covmats.append((1/classes[index].shape[0])*(np.transpose(Xc)).dot(Xc))
 
     # Outputs
     # means - A k x d matrix containing learnt means for each of the k classes
@@ -147,21 +131,37 @@ def ldaTest(means,covmat,Xtest,ytest):
     # Outputs
     # acc - A scalar accuracy value
     # ypred - N x 1 column vector indicating the predicted labels
+    N = Xtest.shape[0]
 
-    # Matrix of likelihoods of eatch feature for each label
-    np.linalg.det(covmat)
+    ypred = 0
 
+    acc = 0.0
 
-    likelihood = np.square(Xtest - means)
-    ypred = np.vectorize(ypredHelper)
-    print(ypred.shape)
+    N = Xtest.shape[0]
+    k = means.shape[0]
+    findMax = np.zeros((N,k))
 
-    print(likelihood)
-    return acc,ypred
+    covmat = 1/np.linalg.det(np.linalg.inv(covmat))
 
-def ypredHelper(a,b):
-    if(a>b): return 1
-    else: return 0
+    for i,x in enumerate(Xtest):
+        for j in range(k):
+            top = x - means[j]
+            top = np.dot(top, np.transpose(top))
+            theTop = -.5*(top*covmat)
+            exp = np.exp(theTop)
+            prob = covmat*exp
+            findMax[i][j] = prob
+
+    maxes = np.argmax(findMax,axis=1)
+    maxes = np.add(maxes,1)
+
+    for i,x in enumerate(ytest):
+        if x == maxes[i]:
+            acc+=1
+
+    acc = acc/N
+
+    return acc,ytest
 
 def qdaTest(means,covmats,Xtest,ytest):
     # Inputs
@@ -172,6 +172,38 @@ def qdaTest(means,covmats,Xtest,ytest):
     # acc - A scalar accuracy value
     # ypred - N x 1 column vector indicating the predicted labels
 
+    ypred = 0
+
+    acc = 0.0
+
+    N = Xtest.shape[0]
+    k = len(covmats)
+    covmat = np.zeros((k))
+    findMax = np.zeros((N,k))
+
+    cov = covmats
+    #get the determinate of each covariance matrix
+    for x in range(len(covmats)):
+        covmat[x] = 1/np.linalg.det(covmats[x])
+
+    for i,x in enumerate(Xtest):
+        for y in range(k):
+            top = (x-means[y])*covmat[y]
+            top = np.dot(np.transpose(top),top)
+            theTop = -.5*(top)
+            exp = np.exp(theTop)
+            prob = covmat[y]*exp
+            findMax[i][y] = prob
+
+    maxes = np.argmax(findMax,axis=1)
+    maxes = np.add(maxes,1)
+    for i,x in enumerate(ytest):
+        if x == maxes[i]:
+            acc+=1
+
+    ypred = np.array(maxes)
+    ypred = ypred.reshape(ypred.shape[0],1)
+    acc = acc/N
     # IMPLEMENT THIS METHOD
     return acc,ypred
 
@@ -182,10 +214,13 @@ def learnOLERegression(X,y):
     # Output:
     # w = d x 1
 
+
+    #formula w = (x^T x)^-1 (x^T Y)
     s = np.dot(np.transpose(X),X)
 
     inverse = np.linalg.inv(s)
     w = np.dot(inverse,np.dot(np.transpose(X),y))
+
     # IMPLEMENT THIS METHOD
     return w
 
@@ -197,11 +232,10 @@ def learnRidgeRegression(X,y,lambd):
     # Output:
     # w = d x 1
 
-    D = X.shape[0]
-
-    left = np.linalg.inv(D*lambd*np.identity(X.shape[1]) + np.dot(np.transpose(X),X))
+    left = np.linalg.inv(lambd*np.identity(X.shape[1]) + np.dot(np.transpose(X),X))
     right = np.dot(np.transpose(X),y)
     w = np.dot(left,right)
+
 
     # IMPLEMENT THIS METHOD
     return w
@@ -214,12 +248,16 @@ def testOLERegression(w,Xtest,ytest):
     # Output:
     # mse
 
+    #total = np.sum(np.square(np.transpose(ytest-np.dot(Xtest,w))))
     N = Xtest.shape[0]
 
-    total = np.sum(np.square(np.transpose(ytest-np.dot(Xtest,w))))
+    total = 0
+    for i,x in enumerate(Xtest):
+        right = np.dot(np.transpose(w),x)
+        j = ytest[i]-right
+        total+= np.dot(np.transpose(j),j)
 
     mse = total/N
-
     # IMPLEMENT THIS METHOD
     return mse
 
@@ -229,6 +267,29 @@ def regressionObjVal(w, X, y, lambd):
     # to w (vector) for the given data X and y and the regularization parameter
     # lambda
 
+    #changes y from (252,1) to (252,)
+    y = y.transpose()
+    y = y[0]
+    y.tolist()
+
+    N = X.shape[0]
+
+    #calculate squared error
+    preSum = y - np.dot(X,w)
+    postSum = np.sum(np.dot(np.transpose(preSum),preSum))/(2*N)
+    regression = (lambd/2)*(np.dot(np.transpose(w),w))
+    error = postSum+regression
+
+
+    #calculate squared error gradient
+    postW = (lambd*w)
+    left = np.dot(np.transpose(w),np.dot(np.transpose(X),X))
+    right = np.dot(np.transpose(X),y)
+
+
+    s = (left-right)/N
+
+    error_grad = s+postW
 
 
 
@@ -244,7 +305,7 @@ def mapNonLinear(x,p):
 
     N = x.shape[0]
 
-    Xp = np.zeros(N,p+1)
+    Xp = np.zeros((N,p+1))
 
     for i in range(N):
         for j in range(p+1):
@@ -260,7 +321,7 @@ if sys.version_info.major == 2:
     X,y,Xtest,ytest = pickle.load(open('sample.pickle','rb'))
 else:
     X,y,Xtest,ytest = pickle.load(open('sample.pickle','rb'),encoding = 'latin1')
-"""
+
 # LDA
 means,covmat = ldaLearn(X,y)
 ldaacc,ldares = ldaTest(means,covmat,Xtest,ytest)
@@ -283,24 +344,23 @@ plt.subplot(1, 2, 1)
 
 zacc,zldares = ldaTest(means,covmat,xx,np.zeros((xx.shape[0],1)))
 plt.contourf(x1,x2,zldares.reshape((x1.shape[0],x2.shape[0])),alpha=0.3)
-plt.scatter(Xtest[:,0],Xtest[:,1],c=ytest)
+plt.scatter(Xtest[:,0],Xtest[:,1],c=ytest.flatten())
 plt.title('LDA')
 
 plt.subplot(1, 2, 2)
 
 zacc,zqdares = qdaTest(means,covmats,xx,np.zeros((xx.shape[0],1)))
 plt.contourf(x1,x2,zqdares.reshape((x1.shape[0],x2.shape[0])),alpha=0.3)
-plt.scatter(Xtest[:,0],Xtest[:,1],c=ytest)
+plt.scatter(Xtest[:,0],Xtest[:,1],c=ytest.flatten())
 plt.title('QDA')
 
 plt.show()
-"""
+
 # Problem 2
 if sys.version_info.major == 2:
     X,y,Xtest,ytest = pickle.load(open('diabetes.pickle','rb'))
 else:
     X,y,Xtest,ytest = pickle.load(open('diabetes.pickle','rb'),encoding = 'latin1')
-    X,y,Xtest,ytest = pickle.load(open('sample.pickle','rb'),encoding = 'latin1')
 
 # add intercept
 X_i = np.concatenate((np.ones((X.shape[0],1)), X), axis=1)
@@ -315,6 +375,7 @@ mle_i = testOLERegression(w_i,Xtest_i,ytest)
 print('MSE without intercept '+str(mle))
 print('MSE with intercept '+str(mle_i))
 
+
 # Problem 3
 k = 101
 lambdas = np.linspace(0, 1, num=k)
@@ -326,6 +387,7 @@ for lambd in lambdas:
     mses3_train[i] = testOLERegression(w_l,X_i,y)
     mses3[i] = testOLERegression(w_l,Xtest_i,ytest)
     i = i + 1
+print(mses3)
 fig = plt.figure(figsize=[12,6])
 plt.subplot(1, 2, 1)
 plt.plot(lambdas,mses3_train)
@@ -335,6 +397,7 @@ plt.plot(lambdas,mses3)
 plt.title('MSE for Test Data')
 
 plt.show()
+
 # Problem 4
 k = 101
 lambdas = np.linspace(0, 1, num=k)
@@ -368,7 +431,7 @@ plt.show()
 
 # Problem 5
 pmax = 7
-lambda_opt = 0 # REPLACE THIS WITH lambda_opt estimated from Problem 3
+lambda_opt = 0.06 # REPLACE THIS WITH lambda_opt estimated from Problem 3
 mses5_train = np.zeros((pmax,2))
 mses5 = np.zeros((pmax,2))
 for p in range(pmax):
