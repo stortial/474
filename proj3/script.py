@@ -113,7 +113,7 @@ def blrObjFunction(initialWeights, *args):
     error_grad = np.zeros((n_features + 1, 1))
 
     # Generate theta
-    theta = np.zeros((n_data,n_features))
+    theta = np.zeros((n_data,1))
     print(theta.shape)
     print("W",initialWeights.shape,"X",train_data.shape,"Y",labeli.shape)
     # Compute p(y|w)
@@ -123,19 +123,24 @@ def blrObjFunction(initialWeights, *args):
     bias = np.ones((train_data.shape[0],1))
     train_data = np.hstack((bias,train_data))
     initialWeights = initialWeights.reshape(1,initialWeights.shape[0])
-
     # Find theta
     for n, xn in enumerate(train_data):
-        # print(initialWeights.shape,xn.shape)
-        theta[n] = initialWeights.dot(xn)
-    print(theta)
+        xn = np.transpose(np.array([xn]))
 
+        #print(initialWeights.shape,xn.shape)
+        theta[n] = initialWeights.dot(xn)
 
     ##################
     # YOUR CODE HERE #
     ##################
     # HINT: Do not forget to add the bias term to your input data
 
+    print(theta.shape)
+    print(labeli.shape)
+    print(train_data.shape)
+    error_grad = (1/n_data)*np.transpose(np.transpose(theta-labeli).dot(train_data))
+
+    #print(error_grad)
     return error, error_grad
 
 
