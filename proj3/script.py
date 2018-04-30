@@ -2,6 +2,8 @@ import numpy as np
 from scipy.io import loadmat
 from scipy.optimize import minimize
 
+np.set_printoptions(threshold=np.nan)
+
 
 def preprocess():
     """
@@ -110,16 +112,28 @@ def blrObjFunction(initialWeights, *args):
     error = 0
     error_grad = np.zeros((n_features + 1, 1))
 
+    print("W",initialWeights.shape,"X",train_data.shape,"Y",labeli.shape)
     # Compute p(y|w)
 
     # Add bias to X
+    print(train_data.shape[1],"and ",initialWeights.shape)
     bias = np.ones((train_data.shape[0],1))
     train_data = np.hstack((bias,train_data))
     initialWeights = initialWeights.reshape(1,initialWeights.shape[0])
-    # compute theta = sig(W^transpose X)
-    theta = np.transpose(initialWeights).dot(train_data)
 
-    print(theta)
+    print("row shape",train_data[0,:].shape)
+    # compute theta = sig(W^transpose Xi)
+    theta = np.ones(train_data.shape)
+    for i in range(train_data.shape[1]):
+
+
+    # theta = initialWeights.dot(train_data.T)
+
+
+    prouduct = 1
+    # for n in range(len(labeli)):
+    #     print(theta[:,n] - 1)
+    #     print(theta.shape)
 
     ##################
     # YOUR CODE HERE #
