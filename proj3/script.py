@@ -159,6 +159,19 @@ def blrPredict(W, data):
 
     """
     label = np.zeros((data.shape[0], 1))
+    bias = np.ones((data.shape[0],1))
+    data = np.hstack((bias,data))
+    print(data.T.shape)
+    print(W.shape)
+
+    c1likeley = sigmoid(np.transpose(W).dot(np.transpose(data)))
+
+    for n, xn in enumerate(train_data):
+        xn = np.transpose(np.array([xn]))
+
+        #print(initialWeights.shape,xn.shape)
+        theta[n] = initialWeights.dot(xn)
+
 
     ##################
     # YOUR CODE HERE #
