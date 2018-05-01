@@ -2,7 +2,7 @@ import numpy as np
 from scipy.io import loadmat
 from scipy.optimize import minimize
 
-np.set_printoptions(threshold=np.nan)
+#np.set_printoptions(threshold=np.nan)
 
 
 def preprocess():
@@ -161,23 +161,31 @@ def blrPredict(W, data):
     label = np.zeros((data.shape[0], 1))
     bias = np.ones((data.shape[0],1))
     data = np.hstack((bias,data))
-    print(data.T.shape)
+
+    print(data.shape)
     print(W.shape)
 
-    c1likeley = sigmoid(np.transpose(W).dot(np.transpose(data)))
+    for i in range(0,data.shape[0]):
+        xi = np.expand_dims(data[i,:],axis=1)
 
-    for n, xn in enumerate(train_data):
-        xn = np.transpose(np.array([xn]))
+        max = np.zeros((10,1))
+        for j in range(0,W.shape[1]):
+            #dotproduct each of the weight vectors by the single row of X
+            wj = np.expand_dims(W[:,j],axis=0)
+            max[j] = sigmoid(np.dot(wj,xi))
 
-        #print(initialWeights.shape,xn.shape)
-        theta[n] = initialWeights.dot(xn)
+
+        label[i] = np.argmax(max)
+
+
+    print(W)
+    #c1likeley = sigmoid(np.transpose(data.dot(W)))
 
 
     ##################
     # YOUR CODE HERE #
     ##################
     # HINT: Do not forget to add the bias term to your input data
-
     return label
 
 
@@ -286,27 +294,27 @@ print('\n\n--------------SVM-------------------\n\n')
 # YOUR CODE HERE #
 ##################
 
-
-"""
-Script for Extra Credit Part
-"""
-# FOR EXTRA CREDIT ONLY
-W_b = np.zeros((n_feature + 1, n_class))
-initialWeights_b = np.zeros((n_feature + 1, n_class))
-opts_b = {'maxiter': 100}
-
-args_b = (train_data, Y)
-nn_params = minimize(mlrObjFunction, initialWeights_b, jac=True, args=args_b, method='CG', options=opts_b)
-W_b = nn_params.x.reshape((n_feature + 1, n_class))
-
-# Find the accuracy on Training Dataset
-predicted_label_b = mlrPredict(W_b, train_data)
-print('\n Training set Accuracy:' + str(100 * np.mean((predicted_label_b == train_label).astype(float))) + '%')
-
-# Find the accuracy on Validation Dataset
-predicted_label_b = mlrPredict(W_b, validation_data)
-print('\n Validation set Accuracy:' + str(100 * np.mean((predicted_label_b == validation_label).astype(float))) + '%')
-
-# Find the accuracy on Testing Dataset
-predicted_label_b = mlrPredict(W_b, test_data)
-print('\n Testing set Accuracy:' + str(100 * np.mean((predicted_label_b == test_label).astype(float))) + '%')
+#
+# """
+# Script for Extra Credit Part
+# """
+# # FOR EXTRA CREDIT ONLY
+# W_b = np.zeros((n_feature + 1, n_class))
+# initialWeights_b = np.zeros((n_feature + 1, n_class))
+# opts_b = {'maxiter': 100}
+#
+# args_b = (train_data, Y)
+# nn_params = minimize(mlrObjFunction, initialWeights_b, jac=True, args=args_b, method='CG', options=opts_b)
+# W_b = nn_params.x.reshape((n_feature + 1, n_class))
+#
+# # Find the accuracy on Training Dataset
+# predicted_label_b = mlrPredict(W_b, train_data)
+# print('\n Training set Accuracy:' + str(100 * np.mean((predicted_label_b == train_label).astype(float))) + '%')
+#
+# # Find the accuracy on Validation Dataset
+# predicted_label_b = mlrPredict(W_b, validation_data)
+# print('\n Validation set Accuracy:' + str(100 * np.mean((predicted_label_b == validation_label).astype(float))) + '%')
+#
+# # Find the accuracy on Testing Dataset
+# predicted_label_b = mlrPredict(W_b, test_data)
+# print('\n Testing set Accuracy:' + str(100 * np.mean((predicted_label_b == test_label).astype(float))) + '%')
