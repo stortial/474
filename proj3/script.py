@@ -124,19 +124,21 @@ def blrObjFunction(initialWeights, *args):
     # Find theta
     for n, xn in enumerate(train_data):
         xn = np.transpose(np.array([xn]))
-
+        clip = 10**(-15)
         #print(initialWeights.shape,xn.shape)
-        theta[n] = initialWeights.dot(xn)
+        temp = initialWeights.dot(xn)
+        np.clip(temp,clip,1-clip)
+        theta[n] = sigmoid(temp)
 
     ##################
     # YOUR CODE HERE #
     ##################
     # HINT: Do not forget to add the bias term to your input data
+    if (theta!= np.zeros((n_data, 1))).any() or (theta!= np.ones((n_data, 1))).any():
+        temp = labeli*np.log(theta) + (1-labeli)*np.log(1-theta)
+        error = (-1/n_data) *(np.sum(temp))
 
-    if (initialWeights!= np.zeros((n_feature + 1, 1))).all():
-        error = (-1/n_data) *(np.sum(labeli*np.log(theta) + (1-labeli)*np.log(1-theta)))
-
-
+    print(error)
     error_grad = np.squeeze((1/n_data)*np.transpose(np.transpose(theta-labeli).dot(train_data)))
 
     #print(error_grad)
