@@ -114,8 +114,6 @@ def blrObjFunction(initialWeights, *args):
 
     # Generate theta
     theta = np.zeros((n_data,1))
-    print(theta.shape)
-    print("W",initialWeights.shape,"X",train_data.shape,"Y",labeli.shape)
     # Compute p(y|w)
 
     # Add bias to X
@@ -135,10 +133,10 @@ def blrObjFunction(initialWeights, *args):
     ##################
     # HINT: Do not forget to add the bias term to your input data
 
-    print(theta.shape)
-    print(labeli.shape)
-    print(train_data.shape)
-    error = (-1/n_data) *(np.sum(labeli*np.log(theta) + (1-labeli)*np.log(1-theta)))
+    if (initialWeights!= np.zeros((n_feature + 1, 1))).all():
+        error = (-1/n_data) *(np.sum(labeli*np.log(theta) + (1-labeli)*np.log(1-theta)))
+
+
     error_grad = np.squeeze((1/n_data)*np.transpose(np.transpose(theta-labeli).dot(train_data)))
 
     #print(error_grad)
@@ -245,7 +243,7 @@ for i in range(n_class):
 # Logistic Regression with Gradient Descent
 W = np.zeros((n_feature + 1, n_class))
 initialWeights = np.zeros((n_feature + 1, 1))
-opts = {'maxiter': 100}
+opts = {'maxiter': 10}
 for i in range(n_class):
     print("______________________________")
     print(i)
