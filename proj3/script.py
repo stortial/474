@@ -138,7 +138,8 @@ def blrObjFunction(initialWeights, *args):
     print(theta.shape)
     print(labeli.shape)
     print(train_data.shape)
-    error_grad = (1/n_data)*np.transpose(np.transpose(theta-labeli).dot(train_data))
+    error = (-1/n_data) *(np.sum(labeli*np.log(theta) + (1-labeli)*np.log(1-theta)))
+    error_grad = np.squeeze((1/n_data)*np.transpose(np.transpose(theta-labeli).dot(train_data)))
 
     #print(error_grad)
     return error, error_grad
@@ -246,6 +247,8 @@ W = np.zeros((n_feature + 1, n_class))
 initialWeights = np.zeros((n_feature + 1, 1))
 opts = {'maxiter': 100}
 for i in range(n_class):
+    print("______________________________")
+    print(i)
     labeli = Y[:, i].reshape(n_train, 1)
     args = (train_data, labeli)
     nn_params = minimize(blrObjFunction, initialWeights, jac=True, args=args, method='CG', options=opts)
