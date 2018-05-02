@@ -296,12 +296,72 @@ print('\n\n--------------SVM-------------------\n\n')
 # linear = SVC(kernal='linear')
 # linear.fit(train_data,np.squeeze(train_label))
 # predSVC = test.predict(test_data)
-# print("SVM accuracy",accuracy_score(test_label, predSVC)*100)
+# print("linear kernal",accuracy_score(test_label, predSVC)*100)
 
 linear = SVC(gamma=.1)
 linear.fit(train_data,np.squeeze(train_label))
 predSVC = test.predict(test_data)
-print("SVM accuracy",accuracy_score(test_label, predSVC)*100)
+print("Gamma is .1",accuracy_score(test_label, predSVC)*100)
+
+linear = SVC()
+linear.fit(train_data,np.squeeze(train_label))
+predSVC = test.predict(test_data)
+print("Gamma is default",accuracy_score(test_label, predSVC)*100)
+
+linear = SVC(C=1.0)
+linear.fit(train_data,np.squeeze(train_label))
+predSVC = test.predict(test_data)
+print("C is 1",accuracy_score(test_label, predSVC)*100)
+
+linear = SVC(C=10.0)
+linear.fit(train_data,np.squeeze(train_label))
+predSVC = test.predict(test_data)
+print("C is 10",accuracy_score(test_label, predSVC)*100)
+
+linear = SVC(C=20.0)
+linear.fit(train_data,np.squeeze(train_label))
+predSVC = test.predict(test_data)
+print("C is 20",accuracy_score(test_label, predSVC)*100)
+
+linear = SVC(C=30.0)
+linear.fit(train_data,np.squeeze(train_label))
+predSVC = test.predict(test_data)
+print("C is 30",accuracy_score(test_label, predSVC)*100)
+
+linear = SVC(C=40.0)
+linear.fit(train_data,np.squeeze(train_label))
+predSVC = test.predict(test_data)
+print("C is 40",accuracy_score(test_label, predSVC)*100)
+
+linear = SVC(C=50.0)
+linear.fit(train_data,np.squeeze(train_label))
+predSVC = test.predict(test_data)
+print("C is 50",accuracy_score(test_label, predSVC)*100)
+
+linear = SVC(C=60.0)
+linear.fit(train_data,np.squeeze(train_label))
+predSVC = test.predict(test_data)
+print("C is 60",accuracy_score(test_label, predSVC)*100)
+
+linear = SVC(C=70.0)
+linear.fit(train_data,np.squeeze(train_label))
+predSVC = test.predict(test_data)
+print("C is 70",accuracy_score(test_label, predSVC)*100)
+
+linear = SVC(C=80.0)
+linear.fit(train_data,np.squeeze(train_label))
+predSVC = test.predict(test_data)
+print("C is 80",accuracy_score(test_label, predSVC)*100)
+
+linear = SVC(C=90.0)
+linear.fit(train_data,np.squeeze(train_label))
+predSVC = test.predict(test_data)
+print("C is 90",accuracy_score(test_label, predSVC)*100)
+
+linear = SVC(C=100.0)
+linear.fit(train_data,np.squeeze(train_label))
+predSVC = test.predict(test_data)
+print("C is 100",accuracy_score(test_label, predSVC)*100)
 
 ##################
 # YOUR CODE HERE #
