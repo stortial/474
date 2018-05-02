@@ -292,6 +292,17 @@ Script for Support Vector Machine
 """
 
 print('\n\n--------------SVM-------------------\n\n')
+# linear default SVC
+# linear = SVC(kernal='linear')
+# linear.fit(train_data,np.squeeze(train_label))
+# predSVC = test.predict(test_data)
+# print("SVM accuracy",accuracy_score(test_label, predSVC)*100)
+
+linear = SVC(gamma=.1)
+linear.fit(train_data,np.squeeze(train_label))
+predSVC = test.predict(test_data)
+print("SVM accuracy",accuracy_score(test_label, predSVC)*100)
+
 ##################
 # YOUR CODE HERE #
 ##################
