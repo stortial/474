@@ -276,93 +276,92 @@ for i in range(n_class):
     nn_params = minimize(blrObjFunction, initialWeights, jac=True, args=args, method='CG', options=opts)
     W[:, i] = nn_params.x.reshape((n_feature + 1,))
 
-# Find the accuracy on Training Dataset
-predicted_label = blrPredict(W, train_data)
-print('\n Training set Accuracy:' + str(100 * np.mean((predicted_label == train_label).astype(float))) + '%')
-
-# Find the accuracy on Validation Dataset
-predicted_label = blrPredict(W, validation_data)
-print('\n Validation set Accuracy:' + str(100 * np.mean((predicted_label == validation_label).astype(float))) + '%')
-
-# Find the accuracy on Testing Dataset
-predicted_label = blrPredict(W, test_data)
-print('\n Testing set Accuracy:' + str(100 * np.mean((predicted_label == test_label).astype(float))) + '%')
+# # Find the accuracy on Training Dataset
+# predicted_label = blrPredict(W, train_data)
+# print('\n Training set Accuracy:' + str(100 * np.mean((predicted_label == train_label).astype(float))) + '%')
+#
+# # Find the accuracy on Validation Dataset
+# predicted_label = blrPredict(W, validation_data)
+# print('\n Validation set Accuracy:' + str(100 * np.mean((predicted_label == validation_label).astype(float))) + '%')
+#
+# # Find the accuracy on Testing Dataset
+# predicted_label = blrPredict(W, test_data)
+# print('\n Testing set Accuracy:' + str(100 * np.mean((predicted_label == test_label).astype(float))) + '%')
 
 """
 Script for Support Vector Machine
 """
 
 print('\n\n--------------SVM-------------------\n\n')
-# linear default SVC
-# linear = SVC(kernal='linear')
-# linear.fit(train_data,np.squeeze(train_label))
-# predSVC = linear.predict(test_data)
-# print("linear kernal",accuracy_score(test_label, predSVC)*100)
+linear = SVC(kernel='linear')
+linear.fit(train_data,np.squeeze(train_label))
+predSVC = linear.predict(test_data)
+print("linear kernal",accuracy_score(test_label, predSVC)*100)
 
-# linear = SVC(gamma=.1)
-# linear.fit(train_data,np.squeeze(train_label))
-# predSVC = linear.predict(test_data)
-# print("Gamma is .1",accuracy_score(test_label, predSVC)*100)
-#
-# linear = SVC()
-# linear.fit(train_data,np.squeeze(train_label))
-# predSVC = linear.predict(test_data)
-# print("Gamma is default",accuracy_score(test_label, predSVC)*100)
+linear = SVC(gamma=.1)
+linear.fit(train_data,np.squeeze(train_label))
+predSVC = linear.predict(test_data)
+print("Gamma is .1",accuracy_score(test_label, predSVC)*100)
+
+linear = SVC()
+linear.fit(train_data,np.squeeze(train_label))
+predSVC = linear.predict(test_data)
+print("Gamma is default",accuracy_score(test_label, predSVC)*100)
 
 linear = SVC(C=1.0)
 linear.fit(train_data,np.squeeze(train_label))
 predSVC = linear.predict(test_data)
 print("C is 1",accuracy_score(test_label, predSVC)*100)
 
-# linear = SVC(C=10.0)
-# linear.fit(train_data,np.squeeze(train_label))
-# predSVC = linear.predict(test_data)
-# print("C is 10",accuracy_score(test_label, predSVC)*100)
-#
-# linear = SVC(C=20.0)
-# linear.fit(train_data,np.squeeze(train_label))
-# predSVC = linear.predict(test_data)
-# print("C is 20",accuracy_score(test_label, predSVC)*100)
-#
-# linear = SVC(C=30.0)
-# linear.fit(train_data,np.squeeze(train_label))
-# predSVC = linear.predict(test_data)
-# print("C is 30",accuracy_score(test_label, predSVC)*100)
-#
-# linear = SVC(C=40.0)
-# linear.fit(train_data,np.squeeze(train_label))
-# predSVC = linear.predict(test_data)
-# print("C is 40",accuracy_score(test_label, predSVC)*100)
+linear = SVC(C=10.0)
+linear.fit(train_data,np.squeeze(train_label))
+predSVC = linear.predict(test_data)
+print("C is 10",accuracy_score(test_label, predSVC)*100)
 
-# linear = SVC(C=50.0)
-# linear.fit(train_data,np.squeeze(train_label))
-# predSVC = linear.predict(test_data)
-# print("C is 50",accuracy_score(test_label, predSVC)*100)
-#
-# linear = SVC(C=60.0)
-# linear.fit(train_data,np.squeeze(train_label))
-# predSVC = linear.predict(test_data)
-# print("C is 60",accuracy_score(test_label, predSVC)*100)
-#
-# linear = SVC(C=70.0)
-# linear.fit(train_data,np.squeeze(train_label))
-# predSVC = linear.predict(test_data)
-# print("C is 70",accuracy_score(test_label, predSVC)*100)
-#
-# linear = SVC(C=80.0)
-# linear.fit(train_data,np.squeeze(train_label))
-# predSVC = linear.predict(test_data)
-# print("C is 80",accuracy_score(test_label, predSVC)*100)
-#
-# linear = SVC(C=90.0)
-# linear.fit(train_data,np.squeeze(train_label))
-# predSVC = linear.predict(test_data)
-# print("C is 90",accuracy_score(test_label, predSVC)*100)
-#
-# linear = SVC(C=100.0)
-# linear.fit(train_data,np.squeeze(train_label))
-# predSVC = linear.predict(test_data)
-# print("C is 100",accuracy_score(test_label, predSVC)*100)
+linear = SVC(C=20.0)
+linear.fit(train_data,np.squeeze(train_label))
+predSVC = linear.predict(test_data)
+print("C is 20",accuracy_score(test_label, predSVC)*100)
+
+linear = SVC(C=30.0)
+linear.fit(train_data,np.squeeze(train_label))
+predSVC = linear.predict(test_data)
+print("C is 30",accuracy_score(test_label, predSVC)*100)
+
+linear = SVC(C=40.0)
+linear.fit(train_data,np.squeeze(train_label))
+predSVC = linear.predict(test_data)
+print("C is 40",accuracy_score(test_label, predSVC)*100)
+
+linear = SVC(C=50.0)
+linear.fit(train_data,np.squeeze(train_label))
+predSVC = linear.predict(test_data)
+print("C is 50",accuracy_score(test_label, predSVC)*100)
+
+linear = SVC(C=60.0)
+linear.fit(train_data,np.squeeze(train_label))
+predSVC = linear.predict(test_data)
+print("C is 60",accuracy_score(test_label, predSVC)*100)
+
+linear = SVC(C=70.0)
+linear.fit(train_data,np.squeeze(train_label))
+predSVC = linear.predict(test_data)
+print("C is 70",accuracy_score(test_label, predSVC)*100)
+
+linear = SVC(C=80.0)
+linear.fit(train_data,np.squeeze(train_label))
+predSVC = linear.predict(test_data)
+print("C is 80",accuracy_score(test_label, predSVC)*100)
+
+linear = SVC(C=90.0)
+linear.fit(train_data,np.squeeze(train_label))
+predSVC = linear.predict(test_data)
+print("C is 90",accuracy_score(test_label, predSVC)*100)
+
+linear = SVC(C=100.0)
+linear.fit(train_data,np.squeeze(train_label))
+predSVC = linear.predict(test_data)
+print("C is 100",accuracy_score(test_label, predSVC)*100)
 
 ##################
 # YOUR CODE HERE #
