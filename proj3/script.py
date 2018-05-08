@@ -276,17 +276,17 @@ for i in range(n_class):
     nn_params = minimize(blrObjFunction, initialWeights, jac=True, args=args, method='CG', options=opts)
     W[:, i] = nn_params.x.reshape((n_feature + 1,))
 
-# # Find the accuracy on Training Dataset
-# predicted_label = blrPredict(W, train_data)
-# print('\n Training set Accuracy:' + str(100 * np.mean((predicted_label == train_label).astype(float))) + '%')
-#
-# # Find the accuracy on Validation Dataset
-# predicted_label = blrPredict(W, validation_data)
-# print('\n Validation set Accuracy:' + str(100 * np.mean((predicted_label == validation_label).astype(float))) + '%')
-#
-# # Find the accuracy on Testing Dataset
-# predicted_label = blrPredict(W, test_data)
-# print('\n Testing set Accuracy:' + str(100 * np.mean((predicted_label == test_label).astype(float))) + '%')
+# Find the accuracy on Training Dataset
+predicted_label = blrPredict(W, train_data)
+print('\n Training set Accuracy:' + str(100 * np.mean((predicted_label == train_label).astype(float))) + '%')
+
+# Find the accuracy on Validation Dataset
+predicted_label = blrPredict(W, validation_data)
+print('\n Validation set Accuracy:' + str(100 * np.mean((predicted_label == validation_label).astype(float))) + '%')
+
+# Find the accuracy on Testing Dataset
+predicted_label = blrPredict(W, test_data)
+print('\n Testing set Accuracy:' + str(100 * np.mean((predicted_label == test_label).astype(float))) + '%')
 
 """
 Script for Support Vector Machine
